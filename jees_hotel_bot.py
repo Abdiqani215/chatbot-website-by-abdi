@@ -34,7 +34,7 @@ HOTEL_INFO = {
     "check_in": "1:00 PM",
     "check_out": "12:00 PM",
     "special_offers": [
-        "Free airport transfer for VIP rooms."
+        "Free airport transfer for ALL rooms."
     ],
     "policies": [
         "Pets are not allowed."
@@ -85,27 +85,36 @@ RESPONSES = {
     },
     "so": {
         "greetings": [
-            "Salaam! Ku soo dhawoow hôtelka Jees. Sideen kuu caawin karnaa maanta?",
-            "Iska warran! Sideen kugu caawin karnaa galashadaada hôtelka Jees?",
-            "Salaan! Maxaan kuu qaban karaa maanta?"
+            "asalm alaikum! Ku soo dhawoow Jees Hotel. Sideen kuu caawin karnaa maanta?",
+            "asalm alaikum! Ku soo dhawoow Jees Hotel. Sideen kuu caawinaa?"
         ],
         "farewells": [
-            "Waad ku mahadsan tahay inaad nala hadashay! Maalintaa wanaagsan ha kuu dhaqdo!",
-            "Haddii aad wax u baahan tahay, waan joognaa. Maalintaa wanaagsan ha kuu dhaqdo!",
-            "Waxaan ku faraxsanahay inaan kugu caawinay. Iska warran!"
+            "Waad mahadsan tahay. Maalin wanaagsan!!",
+            "Haddii aad wax u baahan tahay, waan joognaa marwalba 24/7. Maalin wanaagsan!",
         ],
         "fallback": [
-            "Waan kuu caawin karaa:\n1️⃣ Buugista qolalka\n2️⃣ Adeegyada\n3️⃣ Hormarimo\n4️⃣ Qaanuunnada\n\nAma kala hadal shaqaale: {whatsapp}",
-            "Caawimaad ku saabsan:\n• Qolalka la heli karo\n• Waqtiga check-in\n• Xawaariiq gaar ah\n• Hababka lacag bixinta\n\nNala soo xiriir: {phone}"
-        ],
+    "Waxan ka caawin karaa:\n"
+    "1️⃣ in an ku qabto qolalka\n"
+    "2️⃣ Adeegyada\n"
+    "3️⃣ Qaanuunnada hotelka\n\n"
+    "Ama toos uu la hadal shaqaale: {whatsapp}",
+    
+    "Caawimaad ku saabsan:\n"
+    "• Qolalka la heli karo\n"
+    "• Waqtiga check-in\n"
+    "• Xawaariiq gaar ah\n"
+    "• Hababka lacag bixinta\n\n"
+    "wixi dheerada Nala soo xiriir: {phone}"
+]
+,
         "room_list": "Waa kuwan qolalkayaga:\n{room_list}\n\nMa doonaysaa inaad wax badan ka ogaato nooc gaar ah oo qol?",
         "room_details": (
             "Waa kuwan faahfaahinta qolka {room_type}:\n"
             "- Qiimaha: {price}\n"
             "- Cabbirka: {size}\n"
-            "- Sariir: {beds}\n"
+            "- Sariirta: {beds}\n"
             "- Musqul: {bathrooms}\n\n"
-            "Ma rabtaa inaad buuxiso qolkan?"
+            "Ma rabtaa inaan ku qabto qolkan?"
         ),
         "amenities": "Waxaan bixinaa adeegyadan:\n{amenities}\n\nMa jirtaa wax gaar ah oo aad rabto inaad wax badan ka ogaato?",
         "check_times": "Waqtiga check-in waa {check_in}, check-out waa {check_out}.\nMa u baahan tahay caawimo ku saabsan jadwalkaaga buugista?",
@@ -281,42 +290,114 @@ def generate_response(user_id, message):
 
 @app.route('/')
 def home():
-    return "Welcome to Jees Hotel Chatbot!"
+    return "Welcome to Jees Hotel Chatbot! please use /chatbot at the end of the url"
 
 @app.route('/chatbot', methods=['GET'])
 def chatbot_interface():
     return '''
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Jees Hotel</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: white;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+            #chat-container {
+                width: 100%;
+                height: 100%;
+                max-width: 340px; /* Matches iframe size */
+                max-height: 450px; /* Matches iframe size */
+                display: flex;
+                flex-direction: column;
+                border: 2px solid #007bff;
+                border-radius: 15px;
+                overflow: hidden;
+            }
+            #chat-header {
+                background: linear-gradient(45deg, #007bff, #0056b3);
+                color: white;
+                padding: 10px;
+                text-align: center;
+                font-weight: bold;
+                font-size: 16px;
+                border-radius: 15px 15px 0 0;
+            }
+            #chat-box {
+                flex: 1;
+                padding: 10px;
+                overflow-y: auto;
+                height: 320px; /* Adjusted to fit */
+                background: #f8f9fa;
+            }
+            #message-input {
+                display: flex;
+                border-top: 1px solid #ddd;
+                padding: 8px;
+                background: white;
+            }
+            #message {
+                flex: 1;
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                outline: none;
+                font-size: 14px;
+            }
+            #send-btn {
+                padding: 8px 15px;
+                background: #007bff;
+                color: white;
+                border: none;
+                cursor: pointer;
+                margin-left: 5px;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
     <body>
-        <h1>Jees Hotel Smart Chatbot</h1>
-        <div style="border: 1px solid #ccc; padding: 20px; width: 400px;">
-            <div id="chat-box" style="height: 300px; overflow-y: scroll; margin-bottom: 10px;"></div>
-            <input type="text" id="message" style="width: 70%; padding: 5px;">
-            <button onclick="sendMessage()" style="padding: 5px;">Send</button>
+        <div id="chat-container">
+            <div id="chat-header">🏨 Jees Hotel</div>
+            <div id="chat-box"></div>
+            <div id="message-input">
+                <input type="text" id="message" placeholder="Type a message..." onkeypress="checkEnter(event)">
+                <button id="send-btn" onclick="sendMessage()">Send</button>
+            </div>
         </div>
+
         <script>
             async function sendMessage() {
-                const message = document.getElementById('message').value;
-                const chatBox = document.getElementById('chat-box');
+                let input = document.getElementById("message");
+                let message = input.value.trim();
+                if (message === "") return;
                 
-                // Add user message
-                chatBox.innerHTML += `<div style="text-align: right; margin: 5px;">You: ${message}</div>`;
+                let chatBox = document.getElementById("chat-box");
+                chatBox.innerHTML += `<div style="text-align: right; margin: 5px;"><strong>You:</strong> ${message}</div>`;
                 
-                // Get bot response
-                const response = await fetch("/chat", {
+                let response = await fetch("/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ message: message })
                 });
-                const data = await response.json();
                 
-                // Add bot response
-                chatBox.innerHTML += `<div style="text-align: left; margin: 5px; color: blue;">Bot: ${data.response}</div>`;
+                let data = await response.json();
+                chatBox.innerHTML += `<div style="text-align: left; margin: 5px; color: blue;"><strong>Bot:</strong> ${data.response}</div>`;
                 
-                // Clear input
-                document.getElementById('message').value = '';
+                input.value = "";
                 chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function checkEnter(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault(); // Prevents page refresh
+                    sendMessage();
+                }
             }
         </script>
     </body>
