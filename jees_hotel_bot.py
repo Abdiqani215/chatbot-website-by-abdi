@@ -8,10 +8,17 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import os
 from datetime import datetime
-
+import spacy.cli
 
 app = Flask(__name__)
-nlp = spacy.load("en_core_web_sm")
+
+# Ensure the spaCy model is downloaded and loaded
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    print("Downloading language model for the first time...")
+    spacy.cli.download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 #hupshup_api_key
 GUPSHUP_API_KEY = "odv18op3iqkeo4r6a4ntr3z176bvc4y3"
