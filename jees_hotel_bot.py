@@ -1,20 +1,21 @@
+from typing import Dict, List, Tuple, Callable, Optional
 from flask import Flask, request, jsonify
 import random
-import re
 import spacy
 import requests
-from datetime import datetime
-from typing import Dict, Tuple, Callable, Optional
-import requests
 from bs4 import BeautifulSoup
-import os
-
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from twilio.rest import Client
+import os
+from datetime import datetime
+
 
 app = Flask(__name__)
 nlp = spacy.load("en_core_web_sm")
+
+#hupshup_api_key
+GUPSHUP_API_KEY = "odv18op3iqkeo4r6a4ntr3z176bvc4y3"
+GUPSHUP_WHATSAPP_NUMBER = "+252634747907"
 
 # ====================
 # Enhanced Core System
@@ -142,7 +143,6 @@ class IntentHandler:
                 return handler['handler']
         
         return self.fallback_handler
-
 # ==================
 # Hotel Configuration
 # ==================
@@ -362,9 +362,7 @@ def handle_booking(msg: str, uid: str, lang: str) -> str:
     return handle_fallback(lang)
 
 def handle_fallback(lang: str) -> str:
-    web_result = search_web("Hotel services")
-    fallback = random.choice(RESPONSES[lang]["fallback"]).format(**HOTEL_INFO)
-    return f"{fallback}\n\n🌐 {web_result}"
+    return random.choice(RESPONSES[lang]["fallback"]).format(**HOTEL_INFO)
 
 # =====================
 # Enhanced Chat Flow
@@ -457,7 +455,9 @@ def api_handler():
 
             # 4. Send WhatsApp message to the hotel
             message_body = f"New booking confirmed for {data['name']}.\nRoom: {room_type}\nCheck-in: {checkin_date}"
-            send_whatsapp_message(media_url, message_body, "whatsapp:+HOTEL_WHATSAPP_NUMBER")
+            send_gupshup_message(data['phone'], message_body)
+
+
 
             return jsonify({"message": "Booking confirmed and sent to hotel via WhatsApp."}), 200
 
@@ -598,19 +598,15 @@ def chatbot_interface():
 def generate_response(user_id: str, message: str) -> str:
     profile = context_manager.get_user_profile(user_id)
     
-    # Handle language selection
-    if profile.get('state') == 'language_selection':
-        return handle_language_selection(user_id, message)
-    
-    # Process message
     lang = profile.get('preferred_language', 'en')
     intent_handler = intent_system.match_intent(message, user_id)
-    
+
     if intent_handler:
         context_manager.log_interaction(user_id, message, intent_handler.__name__)
         return intent_handler(message, user_id, lang)
-    
-    return handle_fallback(lang)
+
+    # Ensure it never returns None
+    return handle_fallback(lang) or "Sorry, I didn’t understand that."
 
 def handle_language_selection(user_id: str, message: str) -> str:
     msg = message.strip().lower()
@@ -624,32 +620,23 @@ def handle_language_selection(user_id: str, message: str) -> str:
         return random.choice(RESPONSES['so']['greetings'])
     return RESPONSES[profile.get('preferred_language', 'en')]["language_prompt"]
 
-def search_web(query: str) -> str:
-    try:
-        response = requests.get(f"http://api.duckduckgo.com/?q={query}&format=json", timeout=3)
-        result = response.json()
-        return result.get('AbstractText', '')[:200] + '...' if result.get('AbstractText') else "No results found"
-    except Exception as e:
-        return "Search unavailable"
+def send_gupshup_message(to_number, message):
+    url = "https://api.gupshup.io/sm/api/v1/msg"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "apikey": GUPSHUP_API_KEY
+    }
+    payload = {
+        "channel": "whatsapp",
+        "source": GUPSHUP_WHATSAPP_NUMBER,
+        "destination": to_number,
+        "message": message,
+        "src.name": "jees_hotel_bot"
+    }
 
-# Keep other handler functions (handle_amenities, handle_contact, etc.) similar to original
-def send_whatsapp_message(media_url: str, body: str, to_whatsapp_number: str) -> str:
-    """
-    Sends a WhatsApp message with a media attachment (PDF confirmation).
-    """
-    # Twilio Credentials (Replace with actual credentials)
-    account_sid = "YOUR_TWILIO_ACCOUNT_SID"
-    auth_token = "YOUR_TWILIO_AUTH_TOKEN"
-    twilio_whatsapp_number = "whatsapp:+YOUR_TWILIO_WHATSAPP_NUMBER"
+    response = requests.post(url, data=payload, headers=headers)
+    return response.json()
 
-    client = Client(account_sid, auth_token)
-    message = client.messages.create(
-        body=body,
-        from_=twilio_whatsapp_number,
-        to=to_whatsapp_number,
-        media_url=[media_url]
-    )
-    return message.sid
 #UPLOAD TO CLOUD
 def upload_to_cloud(file_path: str) -> str:
     """
@@ -662,5 +649,67 @@ def upload_to_cloud(file_path: str) -> str:
     else:
         print(f"❌ File not found: {file_path}")
         return None
+
+# **✅ Combined API for Web Chat & WhatsApp**
+@app.route('/api', methods=['POST'])
+def handle_api_request(): 
+    data = request.get_json()
+    action = data.get("action")
+
+    # **Chatbot conversation for Web Users**
+    if action == "chat":
+        user_id = request.remote_addr
+        response = generate_response(user_id, data['message'])
+        return jsonify({"response": response})
+    
+    # **Room Booking Confirmation**
+    elif action == "confirm_booking":
+        room_type = data.get("room_type")
+        checkin_date = data.get("checkindate")
+        checkout_date = data.get("checkoutdate")
+        
+        # Check room availability
+        if room_type.lower() not in ["deluxe room", "suite room"]:
+            return jsonify({"error": "Room not available"}), 400
+
+        # Send WhatsApp confirmation via Gupshup
+        message_body = f"Booking confirmed for {data['name']}.\nRoom: {room_type}\nCheck-in: {checkin_date}"
+        send_gupshup_message(data['phone'], message_body)
+
+        return jsonify({"message": "Booking confirmed and sent via WhatsApp."}), 200
+    
+    else:
+        return jsonify({"error": "Invalid action"}), 400
+
+@app.route('/whatsapp', methods=['POST'])
+def whatsapp_reply():
+    data = request.get_json()
+    incoming_msg = data.get('message', '')
+    sender_number = data.get('sender', '')
+
+    # Process chatbot response
+    response_text = generate_response(sender_number, incoming_msg)
+
+    # Send response back via Gupshup
+    send_gupshup_message(sender_number, response_text)
+
+    return jsonify({"message": "Message sent via Gupshup."}), 200
+
+def send_gupshup_message(to_number, message):
+    url = "https://api.gupshup.io/sm/api/v1/msg"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "apikey": GUPSHUP_API_KEY
+    }
+    payload = {
+        "channel": "whatsapp",
+        "source": GUPSHUP_WHATSAPP_NUMBER,
+        "destination": to_number,
+        "message": message,
+        "src.name": "your_gupshup_bot_name"
+    }
+
+    response = requests.post(url, data=payload, headers=headers)
+    return response.json()
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
