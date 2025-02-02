@@ -665,38 +665,6 @@ def upload_to_cloud(file_path: str) -> str:
     else:
         print(f"❌ File not found: {file_path}")
         return None
-
-# **✅ Combined API for Web Chat & WhatsApp**
-@app.route('/api', methods=['POST'])
-def handle_api_request(): 
-    data = request.get_json()
-    action = data.get("action")
-
-    # **Chatbot conversation for Web Users**
-    if action == "chat":
-        user_id = request.remote_addr
-        response = generate_response(user_id, data['message'])
-        return jsonify({"response": response})
-    
-    # **Room Booking Confirmation**
-    elif action == "confirm_booking":
-        room_type = data.get("room_type")
-        checkin_date = data.get("checkindate")
-        checkout_date = data.get("checkoutdate")
-        
-        # Check room availability
-        if room_type.lower() not in ["deluxe room", "suite room"]:
-            return jsonify({"error": "Room not available"}), 400
-
-        # Send WhatsApp confirmation via Gupshup
-        message_body = f"Booking confirmed for {data['name']}.\nRoom: {room_type}\nCheck-in: {checkin_date}"
-        send_gupshup_message(data['phone'], message_body)
-
-        return jsonify({"message": "Booking confirmed and sent via WhatsApp."}), 200
-    
-    else:
-        return jsonify({"error": "Invalid action"}), 400
-
 @app.route('/whatsapp', methods=['POST'])
 def whatsapp_reply():
     data = request.get_json()
