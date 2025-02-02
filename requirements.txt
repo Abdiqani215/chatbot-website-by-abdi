@@ -1,8 +1,7 @@
-Flask
-requests
-spacy
-beautifulsoup4
-reportlab
-gunicorn
-spacy
+Flask==3.1.0
+requests==2.32.3
+spacy==3.5.4
+beautifulsoup4==4.13.0
+reportlab==4.2.5
+gunicorn==23.0.0
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0.tar.gz
