@@ -153,27 +153,6 @@ class IntentHandler:
 # ==================
 # Hotel Configuration
 # ==================
-def check_room_availability(room_type: str, checkin_date: str, checkout_date: str) -> bool:
-    """
-    Checks room availability on the ChessHotel booking website.
-    """
-    url = "https://live.ipms247.com/booking/book-rooms-jeeshotel"
-    
-    try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Example: Find the room availability section in the page (this needs to be adjusted)
-            available_rooms = soup.find_all(class_="room-info")
-            
-            for room in available_rooms:
-                if room_type.lower() in room.get_text(strip=True).lower():
-                    return True  # Room is available
-    except Exception as e:
-        print(f"Error checking availability: {e}")
-    
-    return False  # Room is not available
 
 HOTEL_INFO = {
     "name": "Jees Hotel",
@@ -220,8 +199,11 @@ RESPONSES = {
             "It was a pleasure assisting you. See you soon!"
         ],
         "fallback": [
-            "I'm sorry, I didn't understand that. Could you please rephrase or choose from the following options?\n\n1️⃣ Room bookings\n2️⃣ Amenities info\n3️⃣ Special offers\n4️⃣ Hotel policies\n\nOr chat with a live agent: {whatsapp}",
-            "I'm here to help with questions about:\n• Room availability\n• Check-in times\n• Special packages\n• Payment methods\n\nYou can also contact us directly: {phone}"
+            "I'm sorry, I didn't understand that. Could you please rephrase or choose from the following options?\n\n"
+            "1️⃣ Room bookings\n2️⃣ Amenities info\n3️⃣ Special offers\n4️⃣ Hotel policies\n\n"
+            "Or chat with a live agent: {whatsapp}",
+            "I'm here to help with questions about:\n• Room availability\n• Check-in times\n• Special packages\n• Payment methods\n\n"
+            "You can also contact us directly: {phone}"
         ],
         "room_list": "Here are our room options:\n{room_list}\n\nWould you like more details about any specific room type?",
         "room_details": (
@@ -230,7 +212,7 @@ RESPONSES = {
             "- Size: {size}\n"
             "- Beds: {beds}\n"
             "- Bathrooms: {bathrooms}\n\n"
-            "Would you like to book this room, or do you have any further questions?"
+            "If you want to book this room, please visit our booking website: [👉 Book Here](https://live.ipms247.com/booking/book-rooms-jeeshotel)."
         ),
         "amenities": "We offer the following amenities:\n{amenities}\n\nIs there anything specific you'd like to know more about?",
         "check_times": "Our check-in time is {check_in} and check-out is {check_out}.\nWould you like assistance with your booking schedule or any other details?",
@@ -241,71 +223,97 @@ RESPONSES = {
             "whatsapp_url": "{whatsapp}",
             "icon_suggestion": "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
         },
-        "booking": "Great! You've selected the {room_type}. When would you like to check in?",
+        "booking": "We no longer take bookings via chatbot. Please book your room online: [👉 Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel).",
         "special_offers": "We currently have the following special offers:\n{offers}\n\nWould you like to take advantage of any of these?",
         "policies": "Here are our hotel policies:\n{policies}\n\nDo you have any questions or need further clarification on these?",
         "feedback": "Thank you for chatting with us! How would you rate your experience today on a scale of 1-5?",
         "thank_you": "Thank you for your feedback! We look forward to welcoming you again.",
-        "language_prompt": "Please choose your language:\n1. English (Type 'en')\n2. Somali (Type 'so')",
-        "booking_date_prompt": "Please enter your desired check-in date (e.g., 2024-03-20):",
-        "booking_confirm": "Confirm booking:\nRoom: {room_type}\nCheck-in Date: {dates}\nIs this correct? (yes/no)",
-        "booking_success": "✅ Booking confirmed! We have sent the details to your email.",
-        "booking_cancel": "Booking process cancelled. Let us know if you need any further assistance.",
+        "language_prompt": "🌍 *Please select your language:*\n\n"
+                           "--------------------\n"
+                           "1️⃣ *English 🇬🇧*\n"
+                           "2️⃣ *Somali 🇸🇴*\n"
+                           "--------------------\n"
+                           "👉 Type '1' for English or '2' for Somali.",
+        "booking_date_prompt": "Bookings cannot be made via chatbot. Please visit our website: [👉 Book Here](https://live.ipms247.com/booking/book-rooms-jeeshotel).",
+        "booking_confirm": "Our chatbot does not handle bookings. Please visit our website for reservations: [👉 Click Here](https://live.ipms247.com/booking/book-rooms-jeeshotel).",
+        "booking_success": "Bookings can only be made through our official website: [👉 Visit Here](https://live.ipms247.com/booking/book-rooms-jeeshotel).",
+        "booking_cancel": "Booking changes cannot be handled via chatbot. Please contact the hotel management for assistance.",
         "room_selection_retry": "Please select a valid room type from the list.",
         "thanks": "You're welcome! Is there anything else I can assist you with?",
         "more_info": "Could you please provide more details or clarify your request?",
         "general": "I'm here to help with any questions you have about our hotel services. Feel free to ask!",
         "promotion": "Don't miss our exclusive deals and seasonal promotions! Check out our website for more details.",
-        "reservation_status": "If you have a reservation and need to check its status, please provide your booking reference."
+        "reservation_status": "If you have a reservation and need to check its status, please contact the hotel management directly."
     },
+
     "so": {
-        "greetings": [
-            "Asalaamu calaykum! Ku soo dhawoow Jees Hotel. Sideen kuu caawin karnaa maanta?",
-            "Asalaamu calaykum! Ku soo dhawoow Jees Hotel. Maxaan kuu qabaa?"
-        ],
-        "farewells": [
-            "Mahadsanid inaad nala soo xiriirtay. Maalin wanaagsan!",
-            "Haddii aad wax su'aalo ah qabto, waxaan joognaa 24/7. Maalin wanaagsan!",
-            "Waxaan ku faraxsanahay inaan kaa caawinay. Nabad gelyo!"
-        ],
-        "fallback": [
-            "Waan ka xumahay, ma fahmin su'aashaada. Fadlan isku day mar kale ama dooro mid ka mid ah xulashooyinkan:\n\n1️⃣ Qolalka\n2️⃣ Adeegyada\n3️⃣ Dalacsiinta\n4️⃣ Qaanuunnada hotelka\n\nAma si toos ah ula xiriir shaqaalaha: {whatsapp}",
-            "Waxaan kaa caawin karaa su'aalaha ku saabsan:\n• Qolalka la heli karo\n• Waqtiga check-in\n• Xawaariiq gaar ah\n• Hababka lacag bixinta\n\nWaxaad sidoo kale nagala soo xiriiri kartaa: {phone}"
-        ],
-        "room_list": "Kuwani waa qolalka aanu bixino:\n{room_list}\n\nMa rabtaa faahfaahin dheeraad ah oo ku saabsan qol gaar ah?",
-        "room_details": (
-            "Waa kuwan faahfaahinta qolka {room_type}:\n"
-            "- Qiimaha: {price}\n"
-            "- Cabbirka: {size}\n"
-            "- Sariiro: {beds}\n"
-            "- Musqul: {bathrooms}\n\n"
-            "Ma rabtaa inaan kuu qabto qolkan, mise su'aalo kale ayaad qabtaa?"
-        ),
-        "amenities": "Waxaan bixinaa adeegyada soo socda:\n{amenities}\n\nMa jirtaa wax gaar ah oo aad rabto inaad wax badan ka ogaato?",
-        "check_times": "Waqtiga check-in waa {check_in} iyo check-out waa {check_out}.\nMa u baahan tahay caawimaad ku saabsan jadwalka buugista ama faahfaahin kale?",
-        "contact": "Waxaad nagala soo xiriiri kartaa:\n📞 Wac: {phone}\n📧 Iimeyl: {email}\n💬 WhatsApp: {whatsapp}\n\nWaxaan nahay 24/7 si aan kuu caawinno.",
-        "address": "Waxaan ku yaallaa {address}.\nMa u baahan tahay tilmaamo ama macluumaad gaadiid?",
-        "whatsapp": {
-            "message": "Guji sumadda WhatsApp ee hoose si aad si toos ah nala ula xiriirto!",
-            "whatsapp_url": "{whatsapp}",
-            "icon_suggestion": "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-        },
-        "booking": "Waad ku mahadsan tahay! Waxaad dooratay qolka {room_type}. Goormaad rabtaa inaad sameyso check-in?",
-        "special_offers": "Waxaan haynaa dalacsiimo gaar ah:\n{offers}\n\nMa rabtaa inaad ka faa'iideysato mid ka mid ah?",
-        "policies": "Kuwani waa qaanuunnadeena:\n{policies}\n\nMa jirtaa wax su'aalo ah oo aad qabto ku saabsan?",
-        "feedback": "Mahadsanid inaad nala soo xiriirtay! Sidee ayaad u qiimeyn lahayd adeeggeena maanta? (1-5)",
-        "thank_you": "Waad ku mahadsan tahay jawaabtaada! Waxaan rajaynaynaa inaan mar kale ku aragno.",
-        "language_prompt": "Fadlan dooro luqadda:\n1. English (Qor 'en')\n2. Soomaali (Qor 'so')",
-        "booking_date_prompt": "Fadlan geli taariikhda aad rabto inaad soo gasho (tusaale, 2024-03-20):",
-        "booking_confirm": "Xaqiiji buugista:\nQolka: {room_type}\nTaariikhda: {dates}\nMa saxaa? (haa/ma)",
-        "booking_success": "✅ Buugista waa la xaqiijiyay! Faahfaahinta waxaa laguu soo diray iimaylkaaga.",
-        "booking_cancel": "Habka buugista waa la joojiyay. Haddii aad wax su'aalo ah qabto, fadlan nala soo xiriir.",
-        "room_selection_retry": "Fadlan dooro nooc qol oo sax ah oo ka mid ah liiska.",
-        "thanks": "Adigaa mudan! Ma jirtaa wax kale oo aan ku caawin karo?",
-        "more_info": "Fadlan faahfaahin dheeraad ah bixiso si aan u fahamno baahidaada.",
-        "general": "Waxaan kuu joognaa inaan kaa caawinno su'aalaha ku saabsan adeegyada hotelka. Weydii wixii aad qabto!",
-        "promotion": "Ha moogaan dalacsiimadayada gaarka ah iyo heshiisyada xilliga! Booqo website-keena wixii faahfaahin ah.",
-        "reservation_status": "Haddii aad hore u buugatay qol oo aad rabto inaad xaqiijiso, fadlan bixi tixraaca buugista."
+    "greetings": [
+        "Asalaamu calaykum! Ku soo dhawoow Jees Hotel. Sideen kuu caawin karnaa maanta?",
+        "Asalaamu calaykum! Ku soo dhawoow Jees Hotel. Maxaan kuu qabaa?",
+        "Salaan diiran! Ma u baahan tahay caawimaad ku saabsan adeegyada Jees Hotel?"
+    ],
+    "farewells": [
+        "Mahadsanid inaad nala soo xiriirtay. Maalin wanaagsan!",
+        "Haddii aad wax su'aalo ah qabto, waxaan joognaa 24/7. Maalin wanaagsan!",
+        "Waxaan ku faraxsanahay inaan kaa caawinay. Nabad gelyo! Waxaan rajaynaynaa inaan kugu aragno mar kale."
+    ],
+    "fallback": [
+        "Waan ka xumahay, ma fahmin su'aashaada. Fadlan isku day mar kale ama dooro mid ka mid ah xulashooyinkan:\n\n"
+        "1️⃣ Qolalka\n2️⃣ Adeegyada\n3️⃣ Dalacsiinta\n4️⃣ Qaanuunnada hotelka\n\n"
+        "Ama si toos ah ula xiriir shaqaalaha: {whatsapp}",
+        "Waxaan kaa caawin karaa su'aalaha ku saabsan:\n• Qolalka la heli karo\n• Waqtiga check-in\n• Xawaariiq gaar ah\n• Hababka lacag bixinta\n\n"
+        "Waxaad sidoo kale nagala soo xiriiri kartaa: {phone}"
+    ],
+    "room_list": "Kuwani waa qolalka aanu bixino:\n{room_list}\n\nMa rabtaa faahfaahin dheeraad ah oo ku saabsan qol gaar ah?",
+    "room_details": (
+        "Waa kuwan faahfaahinta qolka {room_type}:\n"
+        "- Qiimaha: {price}\n"
+        "- Cabbirka: {size}\n"
+        "- Sariiro: {beds}\n"
+        "- Musqul: {bathrooms}\n\n"
+        "Ma rabtaa inaan kuu qabto qolkan, mise su'aalo kale ayaad qabtaa?"
+    ),
+    "amenities": "Waxaan bixinaa adeegyada soo socda:\n{amenities}\n\nMa jirtaa wax gaar ah oo aad rabto inaad wax badan ka ogaato?",
+    "check_times": "Waqtiga check-in waa {check_in} iyo check-out waa {check_out}.\nMa u baahan tahay caawimaad ku saabsan jadwalka buugista ama faahfaahin kale?",
+    "contact": "Waxaad nagala soo xiriiri kartaa:\n📞 Wac: {phone}\n📧 Iimeyl: {email}\n💬 WhatsApp: {whatsapp}\n\nWaxaan nahay 24/7 si aan kuu caawinno.",
+    "address": "Waxaan ku yaallaa {address}.\nMa u baahan tahay tilmaamo ama macluumaad gaadiid?",
+    "whatsapp": {
+        "message": "Guji sumadda WhatsApp ee hoose si aad si toos ah nala ula xiriirto!",
+        "whatsapp_url": "{whatsapp}",
+        "icon_suggestion": "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+    },
+    "wifi": "Haa, waxaan bixinaa internet xawaare sare leh (200 Mbps). Wi-Fi-gu waa bilaash!",
+    "laundry": "Haa, waxaan bixinaa adeeg dhar dhaqis, laakiin qiimaha wuu kala duwan yahay iyadoo ku xiran dharka aad rabto in la dhaqo.",
+    "family": "Waxaan nahay hotel ku habboon qoysaska, laakiin kama bixino sariiraha ilmaha ama sariiro dheeraad ah. Hase yeeshee, waxaad ka heli kartaa qolalka qoyska boggayaga.",
+    "gym": "Haa, jimicsigayagu waa furan yahay, waana xor loogu isticmaali karaa martida hotelka.",
+    "restaurant": "Waxaan haynaa hal maqaaxi oo leh 7 meelood oo kala duwan oo fadhiga, sida dhismaha sare (rooftop), kafateeriyada, hoolka iyo maqaaxida caadiga ah.",
+    "taxi": "Haa, waxaan kuu dalban karnaa taksi, balse waa adeeg lacag leh.",
+    "airport": "Haa, waxaan bixinaa gaadiid bilaash ah oo lagaa soo qaado garoonka diyaaradaha.",
+    "rooms": "Waxaad ka heli kartaa qolalka kala duwan ee aan bixino halkan: [Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "booking": "Haddii aad rabto inaad buug sameyso, fadlan booqo boggayaga: [Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "policies": "Kuwani waa qaanuunnada hotelka:\n{policies}\n\nMa jirtaa wax su'aalo ah oo aad qabto ku saabsan?",
+    "special_offers": "Waxaan haynaa dalacsiimo gaar ah:\n{offers}\n\nMa rabtaa inaad ka faa'iideysato mid ka mid ah?",
+    "feedback": "Mahadsanid inaad nala soo xiriirtay! Sidee ayaad u qiimeyn lahayd adeeggeena maanta? (1-5)",
+    "thank_you": "Waad ku mahadsan tahay jawaabtaada! Waxaan rajaynaynaa inaan mar kale ku aragno.",
+    "language_prompt": (
+        "🌍 *Fadlan dooro luqadda:* / *Please select your language:*\n\n"
+        "--------------------\n"
+        "1️⃣ *English 🇬🇧*\n"
+        "2️⃣ *Soomaali 🇸🇴*\n"
+        "--------------------\n"
+        "👉 *Qor '1' si aad u doorato Ingiriis, ama '2' si aad u doorato Soomaali.*\n"
+        "👉 *Type '1' for English or '2' for Somali.*"
+    ),
+    "booking": "Haddii aad rabto inaad qol qabsato , fadlan isticmaal: [👉 Halkan qol ka qabso ](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "booking_confirm": "qol hadad rabto inad qabsato halkan taabo. [👉 Guji halkan](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "booking_success": "qol qabsasho waxa lagaa qabsan karaa kaliya halkan: [👉 taabo halkan](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "booking_cancel": "booking si toos ah loogama joojin karo chatbot-ka. Haddii aad rabto inaad wax ka bedesho ama cancel to, fadlan la xiriir maamulka hotelka.",
+    "room_selection_retry": "Fadlan dooro nooc qol oo sax ah oo ka mid ah liiska.",
+    "thanks": "Adigaa mudan! Ma jirtaa wax kale oo aan ku caawin karo?",
+    "more_info": "Fadlan faahfaahin dheeraad ah bixiso si aan u fahamno baahidaada.",
+    "general": "Waxaan kuu joognaa inaan kaa caawino su'aalaha ku saabsan adeegyada hotelka. Naweydii wixii aad qabto!",
+    "promotion": "la xiriir mamulka hotelka Wac: {phone}\n📧 gmail: {email}\n💬 WhatsApp: {whatsapp}",
+    "reservation_status": "Haddii aad hore u qabsatay qol oo aad rabto inaad xaqiijiso, fadlan Wac: {phone}\n📧 gmail: {email}\n💬 WhatsApp: {whatsapp}."
     }
 }
 
@@ -325,106 +333,18 @@ def handle_rooms(msg: str, uid: str, lang: str) -> str:
     room_list = "\n".join([f"- {room['type']} ({room['price']})" for room in HOTEL_INFO["rooms"]])
     return RESPONSES[lang]["room_list"].format(room_list=room_list)
 
-def handle_booking(msg: str, uid: str, lang: str) -> str:
-    context = context_manager.get_context(uid)
-    profile = context_manager.get_user_profile(uid)
-    entities = nlp_processor.extract_entities(msg)
-    
-    if not context.get('booking_stage'):
-        context_manager.update_context(uid, {
-            'booking_stage': 'room_selection',
-            'booking_data': {}
-        })
-        return RESPONSES[lang]["room_list"].format(
-            room_list="\n".join([f"- {room['type']}" for room in HOTEL_INFO["rooms"]])
-        )
-    
-    if context['booking_stage'] == 'room_selection':
-        room_match = next((room for room in HOTEL_INFO["rooms"] 
-                         if room["type"].lower() in msg.lower()), None)
-        if room_match:
-            context['booking_data']['room'] = room_match
-            context['booking_stage'] = 'date_selection'
-            return RESPONSES[lang]["booking_date_prompt"]
-        return RESPONSES[lang]["room_selection_retry"]
-    
-    if context['booking_stage'] == 'date_selection':
-        if entities['dates']:
-            context['booking_data']['dates'] = entities['dates'][0]
-            context['booking_stage'] = 'confirmation'
-            return RESPONSES[lang]["booking_confirm"].format(
-                room_type=context['booking_data']['room']['type'],
-                dates=context['booking_data']['dates']
-            )
-        return RESPONSES[lang]["booking_date_prompt"]
-    
-    if context['booking_stage'] == 'confirmation':
-        if 'yes' in msg.lower() or 'ha' in msg.lower():
-            profile['booking_history'].append(context['booking_data'])
-            context_manager.clear_context(uid)
-            return RESPONSES[lang]["booking_success"]
-        context_manager.clear_context(uid)
-        return RESPONSES[lang]["booking_cancel"]
-    
-    return handle_fallback(lang)
-
 def handle_fallback(lang: str) -> str:
+    user_attempts = context_manager.get_context(lang).get("fallback_attempts", 0)
+
+    if user_attempts >= 2:
+        return f"Let me connect you to a live agent. Click here: {HOTEL_INFO['whatsapp']}"
+
+    context_manager.update_context(lang, {"fallback_attempts": user_attempts + 1})
     return random.choice(RESPONSES[lang]["fallback"]).format(**HOTEL_INFO)
 
 # =====================
 # Enhanced Chat Flow
 # =====================
-
-intent_system = IntentHandler()
-def generate_booking_confirmation_pdf(booking_data: dict, filename="booking_confirmation.pdf") -> str:
-    """
-    Generate a PDF booking confirmation based on the provided details.
-    """
-    c = canvas.Canvas(filename, pagesize=letter)
-    width, height = letter
-
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, height - 50, "CONFIRM BOOKING")
-
-    # Booking Reference Number
-    c.setFont("Helvetica", 12)
-    c.drawString(50, height - 100, f"Booking Reference No: {booking_data.get('request_number', 'N/A')}")
-
-    # Customer and Booking Details
-    c.drawString(50, height - 140, f"Customer Name: {booking_data.get('name', 'N/A')}")
-    c.drawString(50, height - 160, f"Check-in Date: {booking_data.get('checkindate', 'N/A')}")
-    c.drawString(50, height - 180, f"Check-out Date: {booking_data.get('checkoutdate', 'N/A')}")
-    c.drawString(50, height - 200, f"Room Type: {booking_data.get('room_type', 'N/A')}")
-    c.drawString(50, height - 220, f"Nights: {booking_data.get('noofnights', 'N/A')}")
-    
-    # Special Requests
-    c.drawString(50, height - 260, f"Special Request: {booking_data.get('specialrequirement', 'None')}")
-
-    # Contact Details
-    c.drawString(50, height - 300, f"Hotel Name: {booking_data.get('hotelname', 'Chess Hotel')}")
-    c.drawString(50, height - 320, f"Hotel Address: {booking_data.get('hoteladdress1', 'N/A')}")
-    c.drawString(50, height - 340, f"Hotel Phone: {booking_data.get('hotelphone', 'N/A')}")
-    c.drawString(50, height - 360, f"Hotel Email: {booking_data.get('owneremail', 'N/A')}")
-
-    c.drawString(50, height - 400, "Thank you for choosing Chess Hotel. We look forward to welcoming you!")
-    
-    c.save()
-    return filename
-
-# Register intent handlers
-intent_system.register_handler(
-    intents=['room', 'suite', 'accommodation'],
-    handler=handle_rooms,
-    priority=2
-)
-
-intent_system.register_handler(
-    intents=['book', 'reserve', 'booking'],
-    handler=handle_booking,
-    priority=1
-)
-
-intent_system.set_fallback(lambda msg, uid, lang: handle_fallback(lang))
 
 @app.route('/')
 def home():
@@ -432,55 +352,18 @@ def home():
 
 @app.route('/api', methods=['POST'])
 def api_handler():
-    """
-    Handles:
-    - Room booking confirmation
-    - Chatbot conversations
-    """
     try:
         data = request.get_json()
         action = data.get("action")
 
-        # === HANDLE ROOM BOOKING ===
-        if action == "confirm_booking":
-            room_type = data.get("room_type")
-            checkin_date = data.get("checkindate")
-            checkout_date = data.get("checkoutdate")
-            
-            # 1. Check room availability
-            if not check_room_availability(room_type, checkin_date, checkout_date):
-                return jsonify({"error": "The selected room is not available for the chosen dates."}), 400
-
-            # 2. Generate PDF confirmation
-            pdf_filename = generate_booking_confirmation_pdf(data)
-            
-            # 3. Upload the file to cloud storage and get URL
-            media_url = upload_to_cloud(pdf_filename)  # Implement this function
-            
-            if not media_url:
-                return jsonify({"error": "Failed to upload confirmation document."}), 500
-
-            # 4. Send WhatsApp message to the hotel
-            message_body = f"New booking confirmed for {data['name']}.\nRoom: {room_type}\nCheck-in: {checkin_date}"
-            send_gupshup_message(data['phone'], message_body)
-
-
-
-            return jsonify({"message": "Booking confirmed and sent to hotel via WhatsApp."}), 200
-
-        # === HANDLE CHATBOT CONVERSATIONS ===
-        elif action == "chat":
+        if action == "chat":
             user_id = request.remote_addr
-            
             if context_manager.check_rate_limit(user_id):
                 return jsonify({"response": "Please wait a moment before sending another message."})
-            
             if not data or 'message' not in data:
                 return jsonify({"error": "Invalid request"}), 400
-                
             response = generate_response(user_id, data['message'])
             return jsonify({"response": response})
-        
         else:
             return jsonify({"error": "Invalid action"}), 400
 
@@ -488,161 +371,304 @@ def api_handler():
         app.logger.error(f"API error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-
 @app.route('/chatbot', methods=['GET'])
 def chatbot_interface():
     """
-    Chatbot Web Interface for Jees Hotel
+    A modern Chatbot Web Interface with a blended frame and no header text.
     """
     return '''
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Jees Hotel Chat</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            #chat-container {
-                width: 100%;
-                height: 100%;
-                max-width: 340px;
-                max-height: 450px;
-                display: flex;
-                flex-direction: column;
-                border: 2px solid #007bff;
-                border-radius: 15px;
-                overflow: hidden;
-            }
-            #chat-header {
-                background: linear-gradient(45deg, #007bff, #0056b3);
-                color: white;
-                padding: 10px;
-                text-align: center;
-                font-weight: bold;
-                font-size: 16px;
-                border-radius: 15px 15px 0 0;
-            }
-            #chat-box {
-                flex: 1;
-                padding: 10px;
-                overflow-y: auto;
-                height: 320px;
-                background: #f8f9fa;
-            }
-            #message-input {
-                display: flex;
-                border-top: 1px solid #ddd;
-                padding: 8px;
-                background: white;
-            }
-            #message {
-                flex: 1;
-                padding: 8px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                font-size: 14px;
-            }
-            #send-btn {
-                padding: 8px 15px;
-                background: #007bff;
-                color: white;
-                border: none;
-                cursor: pointer;
-                margin-left: 5px;
-                border-radius: 5px;
-            }
-        </style>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Chat</title>
+      <!-- Google Fonts -->
+      <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+      <style>
+        :root {
+          --primary-color: #0d6efd;
+          --primary-hover: #0056b3;
+          --light-color: #f8f9fa;
+          --dark-color: #343a40;
+          --white: #ffffff;
+        }
+        /* Basic reset and body styling */
+        body {
+          margin: 0;
+          padding: 0;
+          background: #e9ecef;
+          font-family: 'Roboto', sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+        }
+        /* Chat container styling */
+        #chat-container {
+          width: 400px;
+          max-width: 100%;
+          height: 600px;
+          background: var(--white);
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          animation: fadeIn 0.5s ease-in;
+          /* Remove any border to help it blend */
+          border: none;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        /* Chat messages area */
+        #chat-box {
+          flex: 1;
+          padding: 20px;
+          overflow-y: auto;
+          background: var(--light-color);
+        }
+        /* Input area styling */
+        #message-input {
+          display: flex;
+          padding: 15px;
+          background: var(--white);
+          border-top: 1px solid #dee2e6;
+        }
+        #message {
+          flex: 1;
+          padding: 12px;
+          border: 1px solid #ced4da;
+          border-radius: 30px;
+          font-size: 16px;
+          outline: none;
+          transition: border-color 0.3s ease;
+        }
+        #message:focus {
+          border-color: var(--primary-color);
+        }
+        #send-btn {
+          background: var(--primary-color);
+          border: none;
+          color: var(--white);
+          padding: 12px 20px;
+          margin-left: 10px;
+          border-radius: 30px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background 0.3s ease;
+        }
+        #send-btn:hover {
+          background: var(--primary-hover);
+        }
+        /* Message bubbles styling */
+        .message {
+          margin-bottom: 20px;
+          display: flex;
+          animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .user-message {
+          justify-content: flex-end;
+        }
+        .bot-message {
+          justify-content: flex-start;
+        }
+        .message p {
+          max-width: 70%;
+          padding: 12px 18px;
+          border-radius: 20px;
+          font-size: 15px;
+          margin: 0;
+        }
+        .user-message p {
+          background: var(--primary-color);
+          color: var(--white);
+          border-bottom-right-radius: 0;
+        }
+        .bot-message p {
+          background: var(--light-color);
+          color: var(--dark-color);
+          border-bottom-left-radius: 0;
+          border: 1px solid #ced4da;
+        }
+        .bot-message p a {
+          color: var(--primary-color);
+          text-decoration: none;
+          font-weight: 500;
+          pointer-events: auto;
+          cursor: pointer;
+        }
+        .bot-message p a:hover {
+          text-decoration: underline;
+        }
+      </style>
     </head>
     <body>
-        <div id="chat-container">
-            <div id="chat-header">🏨 Jees Hotel</div>
-            <div id="chat-box"></div>
-            <div id="message-input">
-                <input type="text" id="message" placeholder="Type a message..." onkeypress="checkEnter(event)">
-                <button id="send-btn" onclick="sendMessage()">Send</button>
-            </div>
+      <div id="chat-container">
+        <!-- Header removed for a cleaner, blended look -->
+        <div id="chat-box"></div>
+        <div id="message-input">
+          <input type="text" id="message" placeholder="Type your message..." onkeypress="checkEnter(event)">
+          <button id="send-btn" onclick="sendMessage()">Send</button>
         </div>
-
-        <script>
-            async function sendMessage() {
-                let input = document.getElementById("message");
-                let message = input.value.trim();
-                if (message === "") return;
-                
-                let chatBox = document.getElementById("chat-box");
-                chatBox.innerHTML += `<div style="text-align: right; margin: 5px;"><strong>You:</strong> ${message}</div>`;
-                
-                let response = await fetch("/api", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "chat", message: message })
-                });
-                
-                let data = await response.json();
-                chatBox.innerHTML += `<div style="text-align: left; margin: 5px; color: blue;"><strong>Bot:</strong> ${data.response}</div>`;
-                
-                input.value = "";
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
-
-            function checkEnter(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    sendMessage();
-                }
-            }
-        </script>
+      </div>
+      <script>
+        async function sendMessage() {
+          const input = document.getElementById("message");
+          const message = input.value.trim();
+          if (!message) return;
+          
+          const chatBox = document.getElementById("chat-box");
+          
+          // Create and append the user's message element
+          const userMsgDiv = document.createElement("div");
+          userMsgDiv.classList.add("message", "user-message");
+          const userMsgP = document.createElement("p");
+          userMsgP.textContent = message;
+          userMsgDiv.appendChild(userMsgP);
+          chatBox.appendChild(userMsgDiv);
+          
+          // Send the message to the server
+          const response = await fetch("/api", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "chat", message: message })
+          });
+          
+          const data = await response.json();
+          
+          // Create and append the bot's message element
+          const botMsgDiv = document.createElement("div");
+          botMsgDiv.classList.add("message", "bot-message");
+          const botMsgP = document.createElement("p");
+          botMsgP.innerHTML = data.response;
+          botMsgDiv.appendChild(botMsgP);
+          chatBox.appendChild(botMsgDiv);
+          
+          input.value = "";
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+  
+        function checkEnter(event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+          }
+        }
+      </script>
     </body>
     </html>
     '''
 
+
+
+# --- Context Manager Update ---
+class ContextManager:
+    def __init__(self):
+        self.contexts: Dict[str, Dict] = {}
+        self.user_profiles: Dict[str, Dict] = {}
+        self.rate_limits: Dict[str, datetime] = {}
+
+    def get_context(self, user_id: str) -> Dict:
+        return self.contexts.get(user_id, {})
+    
+    def update_context(self, user_id: str, updates: Dict):
+        self.contexts.setdefault(user_id, {}).update(updates)
+    
+    def clear_context(self, user_id: str):
+        self.contexts.pop(user_id, None)
+    
+    def get_user_profile(self, user_id: str) -> Dict:
+        return self.user_profiles.setdefault(user_id, {
+            'preferred_language': None,  # No default language
+            'state': 'awaiting_language',  # Awaiting language selection
+            'last_interaction': datetime.now(),
+            'conversation_history': [],
+            'preferred_room_type': None,
+            'booking_history': []
+        })
+    
+    def log_interaction(self, user_id: str, message: str, intent: str):
+        profile = self.get_user_profile(user_id)
+        profile['conversation_history'].append({
+            'timestamp': datetime.now(),
+            'message': message,
+            'intent': intent
+        })
+        profile['last_interaction'] = datetime.now()
+    
+    def check_rate_limit(self, user_id: str) -> bool:
+        last_req = self.rate_limits.get(user_id)
+        if last_req and (datetime.now() - last_req).seconds < 2:
+            return True
+        self.rate_limits[user_id] = datetime.now()
+        return False
+
+context_manager = ContextManager()
+
+# --- Language Selection Handler ---
+def handle_language_selection(user_id: str, message: str) -> str:
+    profile = context_manager.get_user_profile(user_id)
+    msg = message.strip().lower()
+    if msg in ['en', 'english', '1']:
+        profile.update({'preferred_language': 'en', 'state': 'normal'})
+        return random.choice(RESPONSES['en']['greetings'])
+    elif msg in ['so', 'somali', 'soomaali', '2']:
+        profile.update({'preferred_language': 'so', 'state': 'normal'})
+        return random.choice(RESPONSES['so']['greetings'])
+    else:
+        # If the selection is not recognized, prompt again.
+        return RESPONSES['en']['language_prompt']
+
+# --- Main Response Generator ---
 def generate_response(user_id: str, message: str) -> str:
     profile = context_manager.get_user_profile(user_id)
     
+    # Check if language selection is needed.
+    if profile.get('preferred_language') is None or profile.get('state') == 'awaiting_language':
+        return handle_language_selection(user_id, message)
+    
     lang = profile.get('preferred_language', 'en')
-    intent_handler = intent_system.match_intent(message, user_id)
-
-    if intent_handler:
-        context_manager.log_interaction(user_id, message, intent_handler.__name__)
-        return intent_handler(message, user_id, lang)
-
-    # Ensure it never returns None
-    return handle_fallback(lang) or "Sorry, I didn’t understand that."
-
-def handle_language_selection(user_id: str, message: str) -> str:
-    msg = message.strip().lower()
-    if msg in ['en', 'english', '1']:
-        profile = context_manager.get_user_profile(user_id)
-        profile.update({'preferred_language': 'en', 'state': 'normal'})
-        return random.choice(RESPONSES['en']['greetings'])
-    if msg in ['so', 'somali', 'soomaali', '2']:
-        profile = context_manager.get_user_profile(user_id)
-        profile.update({'preferred_language': 'so', 'state': 'normal'})
-        return random.choice(RESPONSES['so']['greetings'])
-    return RESPONSES[profile.get('preferred_language', 'en')]["language_prompt"]
-
-def send_gupshup_message(to_number, message):
-    url = "https://api.gupshup.io/sm/api/v1/msg"
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "apikey": GUPSHUP_API_KEY
-    }
-    payload = {
-        "channel": "whatsapp",
-        "source": GUPSHUP_WHATSAPP_NUMBER,
-        "destination": to_number,
-        "message": message,
-        "src.name": "jees_hotel_bot"
-    }
-
-    response = requests.post(url, data=payload, headers=headers)
-    return response.json()
+    msg_lower = message.lower()
+    
+    # Handle greetings.
+    if any(greet in msg_lower for greet in ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]):
+        return random.choice(RESPONSES[lang]["greetings"])
+    
+    # Handle room booking inquiries.
+    if "book" in msg_lower or "reserve" in msg_lower or "room" in msg_lower:
+        return "You can book a room directly through our website: [Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel)"
+    
+    # Handle customer support inquiries.
+    if "support" in msg_lower or "help" in msg_lower or "contact" in msg_lower:
+        return f"For immediate assistance, you can contact our support team via WhatsApp: {HOTEL_INFO['whatsapp']}"
+    
+    # Handle hotel location inquiries.
+    if "where" in msg_lower or "location" in msg_lower or "address" in msg_lower:
+        return f"Jees Hotel is located at {HOTEL_INFO['address']}."
+    
+    # Handle amenities inquiries.
+    if "amenities" in msg_lower or "facilities" in msg_lower or "services" in msg_lower:
+        amenities_list = "\n".join(HOTEL_INFO["amenities"])
+        return f"We offer the following amenities:\n{amenities_list}\n\nIs there anything specific you’d like to know more about?"
+    
+    # Handle check-in/check-out inquiries.
+    if "check-in" in msg_lower or "check-out" in msg_lower or "time" in msg_lower:
+        return f"Check-in time: {HOTEL_INFO['check_in']} | Check-out time: {HOTEL_INFO['check_out']}."
+    
+    # Handle hotel policy inquiries.
+    if "policy" in msg_lower or "rules" in msg_lower or "regulations" in msg_lower:
+        policies_list = "\n".join(HOTEL_INFO["policies"])
+        return f"Here are our hotel policies:\n{policies_list}\n\nLet us know if you need further clarification."
+    
+    # Default fallback.
+    return handle_fallback(lang) or "Sorry, I didn’t understand that. Could you please rephrase?"
 
 #UPLOAD TO CLOUD
 def upload_to_cloud(file_path: str) -> str:
