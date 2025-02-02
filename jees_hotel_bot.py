@@ -374,7 +374,7 @@ def api_handler():
 @app.route('/chatbot', methods=['GET'])
 def chatbot_interface():
     """
-    A modern Chatbot Web Interface with a blended frame and no header text.
+    A more professional and modern Chatbot Web Interface for Jees Hotel.
     """
     return '''
     <!DOCTYPE html>
@@ -382,7 +382,7 @@ def chatbot_interface():
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Chat</title>
+      <title>Jees Hotel Chat</title>
       <!-- Google Fonts -->
       <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
       <style>
@@ -416,12 +416,20 @@ def chatbot_interface():
           flex-direction: column;
           overflow: hidden;
           animation: fadeIn 0.5s ease-in;
-          /* Remove any border to help it blend */
-          border: none;
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        /* Header styling */
+        #chat-header {
+          background: var(--primary-color);
+          color: var(--white);
+          padding: 20px;
+          text-align: center;
+          font-size: 22px;
+          font-weight: 500;
+          letter-spacing: 0.5px;
         }
         /* Chat messages area */
         #chat-box {
@@ -497,21 +505,11 @@ def chatbot_interface():
           border-bottom-left-radius: 0;
           border: 1px solid #ced4da;
         }
-        .bot-message p a {
-          color: var(--primary-color);
-          text-decoration: none;
-          font-weight: 500;
-          pointer-events: auto;
-          cursor: pointer;
-        }
-        .bot-message p a:hover {
-          text-decoration: underline;
-        }
       </style>
     </head>
     <body>
       <div id="chat-container">
-        <!-- Header removed for a cleaner, blended look -->
+        <div id="chat-header">Jees Hotel Chat</div>
         <div id="chat-box"></div>
         <div id="message-input">
           <input type="text" id="message" placeholder="Type your message..." onkeypress="checkEnter(event)">
@@ -525,14 +523,8 @@ def chatbot_interface():
           if (!message) return;
           
           const chatBox = document.getElementById("chat-box");
-          
-          // Create and append the user's message element
-          const userMsgDiv = document.createElement("div");
-          userMsgDiv.classList.add("message", "user-message");
-          const userMsgP = document.createElement("p");
-          userMsgP.textContent = message;
-          userMsgDiv.appendChild(userMsgP);
-          chatBox.appendChild(userMsgDiv);
+          // Append the user's message
+          chatBox.innerHTML += `<div class="message user-message"><p>${message}</p></div>`;
           
           // Send the message to the server
           const response = await fetch("/api", {
@@ -542,14 +534,8 @@ def chatbot_interface():
           });
           
           const data = await response.json();
-          
-          // Create and append the bot's message element
-          const botMsgDiv = document.createElement("div");
-          botMsgDiv.classList.add("message", "bot-message");
-          const botMsgP = document.createElement("p");
-          botMsgP.innerHTML = data.response;
-          botMsgDiv.appendChild(botMsgP);
-          chatBox.appendChild(botMsgDiv);
+          // Append the bot's message
+          chatBox.innerHTML += `<div class="message bot-message"><p>${data.response}</p></div>`;
           
           input.value = "";
           chatBox.scrollTop = chatBox.scrollHeight;
@@ -565,9 +551,6 @@ def chatbot_interface():
     </body>
     </html>
     '''
-
-
-
 # --- Context Manager Update ---
 class ContextManager:
     def __init__(self):
