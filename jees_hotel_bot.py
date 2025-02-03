@@ -264,14 +264,14 @@ RESPONSES = {
         "Waxaan kaa caawin karaa su'aalaha ku saabsan:\n• Qolalka la heli karo\n• Waqtiga check-in\n• Xawaariiq gaar ah\n• Hababka lacag bixinta\n\n"
         "Waxaad sidoo kale nagala soo xiriiri kartaa: {phone}"
     ],
-    "room_list": "Kuwani waa qolalka aanu bixino:\n{room_list}\n\nMa rabtaa faahfaahin dheeraad ah oo ku saabsan qol gaar ah?",
+    "room_list": "Kuwani waa qolalka aanu bixino:\n{room_list}\n\n soo qor qolka aad rabto si faahfaahin dheeraad ku siino?",
     "room_details": (
         "Waa kuwan faahfaahinta qolka {room_type}:\n"
         "- Qiimaha: {price}\n"
         "- Cabbirka: {size}\n"
         "- Sariiro: {beds}\n"
         "- Musqul: {bathrooms}\n\n"
-        "Ma rabtaa inaan kuu qabto qolkan, mise su'aalo kale ayaad qabtaa?"
+        "hadii aad qolka inad aragtid rabto halkan ka eeg (https://live.ipms247.com/booking/book-rooms-jeeshotel)"
     ),
     "amenities": "Waxaan bixinaa adeegyada soo socda:\n{amenities}\n\nMa jirtaa wax gaar ah oo aad rabto inaad wax badan ka ogaato?",
     "check_times": "Waqtiga check-in waa {check_in} iyo check-out waa {check_out}.\nMa u baahan tahay caawimaad ku saabsan jadwalka buugista ama faahfaahin kale?",
@@ -284,16 +284,15 @@ RESPONSES = {
     },
     "wifi": "Haa, waxaan bixinaa internet xawaare sare leh (200 Mbps). Wi-Fi-gu waa bilaash!",
     "laundry": "Haa, waxaan bixinaa adeeg dhar dhaqis, laakiin qiimaha wuu kala duwan yahay iyadoo ku xiran dharka aad rabto in la dhaqo.",
-    "family": "Waxaan nahay hotel ku habboon qoysaska, laakiin kama bixino sariiraha ilmaha ama sariiro dheeraad ah. Hase yeeshee, waxaad ka heli kartaa qolalka qoyska boggayaga.",
-    "gym": "Haa, jimicsigayagu waa furan yahay, waana xor loogu isticmaali karaa martida hotelka.",
-    "restaurant": "Waxaan haynaa hal maqaaxi oo leh 7 meelood oo kala duwan oo fadhiga, sida dhismaha sare (rooftop), kafateeriyada, hoolka iyo maqaaxida caadiga ah.",
-    "taxi": "Haa, waxaan kuu dalban karnaa taksi, balse waa adeeg lacag leh.",
-    "airport": "Haa, waxaan bixinaa gaadiid bilaash ah oo lagaa soo qaado garoonka diyaaradaha.",
-    "rooms": "Waxaad ka heli kartaa qolalka kala duwan ee aan bixino halkan: [Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
-    "booking": "Haddii aad rabto inaad buug sameyso, fadlan booqo boggayaga: [Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel)",
-    "policies": "Kuwani waa qaanuunnada hotelka:\n{policies}\n\nMa jirtaa wax su'aalo ah oo aad qabto ku saabsan?",
-    "special_offers": "Waxaan haynaa dalacsiimo gaar ah:\n{offers}\n\nMa rabtaa inaad ka faa'iideysato mid ka mid ah?",
-    "feedback": "Mahadsanid inaad nala soo xiriirtay! Sidee ayaad u qiimeyn lahayd adeeggeena maanta? (1-5)",
+    "family": "Waxaan nahay hotel ku habboon qoysaska, laakiin kama bixino sariiraha ilmaha ama sariiro dheeraad ah. Hase yeeshee, waxaad ka heli kartaa qolalka qoyska ee website ka yaala sida 3 sariirod.",
+    "gym": "Haa, jimicsigayagu wuu furan yahay, waana isticmaali karta 6AM to 10PM",
+    "restaurant": "Waxaan haynaa 7 meelood oo kala duwan oo fadhiga, sida (rooftop), kafateeriyada, hoolka iyo maqaaxida caadiga ah.",
+    "taxi": "Haa,Waan ku dalbi karna taksi, balse waa adeeg lacag leh.",
+    "airport": "Haa, waxaan bixinaa gaadiid bilaash ah oo qofka laga so qaado airport ka waliba qaybta VIP ga.",
+    "rooms": "Waxaad ka heli kartaa qolalka kala duwan ee aan bixino halkan:(https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "booking": "Haddii aad rabto inaad buug sameyso, fadlan booqo boggayaga:(https://live.ipms247.com/booking/book-rooms-jeeshotel)",
+    "policies": "Kuwani waa qaanuunada hotelka:\n{policies}\n\nMa jirtaa wax su'aalo ah oo aad qabto ku saabsan?",
+    "feedback": "Mahadsanid inaad nala soo xiriirtay! Ma jirtaa wax gaar ah oo aad rabto inaad wax badan ka ogaato? fadlan no sheeg!",
     "thank_you": "Waad ku mahadsan tahay jawaabtaada! Waxaan rajaynaynaa inaan mar kale ku aragno.",
     "language_prompt": (
         "🌍 *Fadlan dooro luqadda:* / *Please select your language:*\n\n"
@@ -376,9 +375,8 @@ def chatbot_interface():
     """
     Chatbot Web Interface with:
       - Language reset on page load
-      - No title/header (since the WP snippet already shows it)
-      - Transparent background
-      - 400x600 container
+      - No title/header
+      - 400x600 container at 50% opacity (blending with background)
     """
     user_id = request.remote_addr
     
@@ -405,7 +403,7 @@ def chatbot_interface():
           --white: #ffffff;
         }
 
-        /* Make the page background transparent so the parent site shows behind it */
+        /* Keep the page background transparent */
         body {
           margin: 0;
           padding: 0;
@@ -413,12 +411,17 @@ def chatbot_interface():
           background: transparent;
         }
 
-        /* Main chat container: 400×600, transparent background, box shadow */
+        /*
+         Chat container with semi-transparent background:
+         - 400×600
+         - background: rgba(255,255,255,0.5) for 50% white
+         - box-shadow for a subtle border
+        */
         #chat-container {
           width: 400px;
           height: 600px;
           max-width: 100%;
-          background: transparent;  /* Let the page behind it show */
+          background: rgba(255, 255, 255, 0.5); /* 50% white transparency */
           border-radius: 10px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
           display: flex;
@@ -432,7 +435,10 @@ def chatbot_interface():
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Messages area: transparent so we see the background behind it */
+        /*
+         Chat box remains transparent so it also blends with the container's background.
+         You can adjust if you prefer a different transparency for the messages area.
+        */
         #chat-box {
           flex: 1;
           padding: 20px;
@@ -440,11 +446,15 @@ def chatbot_interface():
           background: transparent;
         }
 
-        /* The input area at the bottom: white for readability */
+        /*
+         The input area at the bottom:
+         Slightly more opaque (white) so user can see the input field text more clearly
+         but also can be made semi-transparent if you prefer.
+        */
         #message-input {
           display: flex;
           padding: 15px;
-          background: var(--white);
+          background: rgba(255, 255, 255, 0.75); /* 75% opaque for better contrast */
           border-top: 1px solid #dee2e6;
         }
         #message {
@@ -455,6 +465,7 @@ def chatbot_interface():
           font-size: 16px;
           outline: none;
           transition: border-color 0.3s ease;
+          background: #fff; /* fully opaque background for text clarity */
         }
         #message:focus {
           border-color: var(--primary-color);
@@ -474,7 +485,9 @@ def chatbot_interface():
           background: var(--primary-hover);
         }
 
-        /* Message bubble styling */
+        /*
+         Message bubbles styling
+        */
         .message {
           margin-bottom: 20px;
           display: flex;
@@ -512,7 +525,7 @@ def chatbot_interface():
     </head>
     <body>
       <div id="chat-container">
-        <!-- No header/title element here -->
+        <!-- No header/title here -->
         <div id="chat-box"></div>
         <div id="message-input">
           <input type="text" id="message" placeholder="Type your message..." onkeypress="checkEnter(event)">
@@ -541,7 +554,7 @@ def chatbot_interface():
           // Append the bot's message
           chatBox.innerHTML += `<div class="message bot-message"><p>${data.response}</p></div>`;
           
-          // Clear input, scroll down
+          // Clear the input, scroll to the bottom
           input.value = "";
           chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -556,6 +569,7 @@ def chatbot_interface():
     </body>
     </html>
     '''
+
 # --- Context Manager Update ---
 class ContextManager:
     def __init__(self):
