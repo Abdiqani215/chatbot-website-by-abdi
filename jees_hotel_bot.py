@@ -80,7 +80,7 @@ class NLPProcessor:
         self.synonyms = {
             'book': ['reserve', 'schedule', 'arrange'],
             'room': ['suite', 'accommodation', 'bedroom'],
-            'thanks': ['mahadsanid', 'shukran']
+            'thanks': ['mahadsanid', 'shukran','thansk','waad mahadsantay','']
         }
     
     def expand_synonyms(self, tokens: list) -> list:
@@ -228,11 +228,11 @@ RESPONSES = {
         "policies": "Here are our hotel policies:\n{policies}\n\nDo you have any questions or need further clarification on these?",
         "feedback": "Thank you for chatting with us! How would you rate your experience today on a scale of 1-5?",
         "thank_you": "Thank you for your feedback! We look forward to welcoming you again.",
-        "language_prompt": "🌍 *Please select your language:*\n\n"
-                           "--------------------\n"
+        "language_prompt": "🌍 *Please select your language:*\n"
+                           "\n"
                            "1️⃣ *English 🇬🇧*\n"
                            "2️⃣ *Somali 🇸🇴*\n"
-                           "--------------------\n"
+                           "\n"
                            "👉 Type '1' for English or '2' for Somali.",
         "booking_date_prompt": "Bookings cannot be made via chatbot. Please visit our website: [👉 Book Here](https://live.ipms247.com/booking/book-rooms-jeeshotel).",
         "booking_confirm": "Our chatbot does not handle bookings. Please visit our website for reservations: [👉 Click Here](https://live.ipms247.com/booking/book-rooms-jeeshotel).",
@@ -374,7 +374,9 @@ def api_handler():
 @app.route('/chatbot', methods=['GET'])
 def chatbot_interface():
     """
-    A more professional and modern Chatbot Web Interface for Jees Hotel.
+    Minimal Chatbot Web Interface: 
+    No title/header, neutral background, 
+    sized 400x600 to blend into WordPress.
     """
     return '''
     <!DOCTYPE html>
@@ -382,7 +384,7 @@ def chatbot_interface():
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Jees Hotel Chat</title>
+      <title>Chatbot Interface</title>
       <!-- Google Fonts -->
       <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
       <style>
@@ -393,44 +395,37 @@ def chatbot_interface():
           --dark-color: #343a40;
           --white: #ffffff;
         }
-        /* Basic reset and body styling */
+
+        /* Reset body styling so it can blend with WordPress */
         body {
           margin: 0;
           padding: 0;
-          background: #e9ecef;
           font-family: 'Roboto', sans-serif;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100vh;
+          background: transparent; /* Let WP or parent container show */
         }
-        /* Chat container styling */
+
+        /* Container: 400×600, white background, box shadow */
         #chat-container {
           width: 400px;
-          max-width: 100%;
           height: 600px;
+          max-width: 100%;
           background: var(--white);
           border-radius: 10px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
           display: flex;
           flex-direction: column;
           overflow: hidden;
+          margin: 0 auto; /* Center if not constrained by parent */
           animation: fadeIn 0.5s ease-in;
         }
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        /* Header styling */
-        #chat-header {
-          background: var(--primary-color);
-          color: var(--white);
-          padding: 20px;
-          text-align: center;
-          font-size: 22px;
-          font-weight: 500;
-          letter-spacing: 0.5px;
-        }
+
+        /* Removed #chat-header to have no title bar */
+
         /* Chat messages area */
         #chat-box {
           flex: 1;
@@ -438,6 +433,7 @@ def chatbot_interface():
           overflow-y: auto;
           background: var(--light-color);
         }
+
         /* Input area styling */
         #message-input {
           display: flex;
@@ -471,6 +467,7 @@ def chatbot_interface():
         #send-btn:hover {
           background: var(--primary-hover);
         }
+
         /* Message bubbles styling */
         .message {
           margin-bottom: 20px;
@@ -509,7 +506,7 @@ def chatbot_interface():
     </head>
     <body>
       <div id="chat-container">
-        <div id="chat-header">Jees Hotel Chat</div>
+        <!-- No header/title here -->
         <div id="chat-box"></div>
         <div id="message-input">
           <input type="text" id="message" placeholder="Type your message..." onkeypress="checkEnter(event)">
@@ -540,7 +537,7 @@ def chatbot_interface():
           input.value = "";
           chatBox.scrollTop = chatBox.scrollHeight;
         }
-  
+
         function checkEnter(event) {
           if (event.key === "Enter") {
             event.preventDefault();
@@ -551,6 +548,7 @@ def chatbot_interface():
     </body>
     </html>
     '''
+
 # --- Context Manager Update ---
 class ContextManager:
     def __init__(self):
