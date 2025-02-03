@@ -377,7 +377,17 @@ def chatbot_interface():
     Minimal Chatbot Web Interface: 
     No title/header, neutral background, 
     sized 400x600 to blend into WordPress.
+
+    This version resets the user's chosen language on each page load 
+    so the bot will re-prompt for language.
     """
+    user_id = request.remote_addr
+    
+    # 1. Force the bot to forget language on each page refresh:
+    profile = context_manager.get_user_profile(user_id)
+    profile['preferred_language'] = None
+    profile['state'] = 'awaiting_language'
+
     return '''
     <!DOCTYPE html>
     <html lang="en">
@@ -548,7 +558,6 @@ def chatbot_interface():
     </body>
     </html>
     '''
-
 # --- Context Manager Update ---
 class ContextManager:
     def __init__(self):
