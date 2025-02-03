@@ -374,16 +374,15 @@ def api_handler():
 @app.route('/chatbot', methods=['GET'])
 def chatbot_interface():
     """
-    Minimal Chatbot Web Interface: 
-    No title/header, neutral background, 
-    sized 400x600 to blend into WordPress.
-
-    This version resets the user's chosen language on each page load 
-    so the bot will re-prompt for language.
+    Chatbot Web Interface with:
+      - Language reset on page load
+      - No title/header (since the WP snippet already shows it)
+      - Transparent background
+      - 400x600 container
     """
     user_id = request.remote_addr
     
-    # 1. Force the bot to forget language on each page refresh:
+    # Reset the user’s chosen language on each page refresh
     profile = context_manager.get_user_profile(user_id)
     profile['preferred_language'] = None
     profile['state'] = 'awaiting_language'
@@ -394,7 +393,7 @@ def chatbot_interface():
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Chatbot Interface</title>
+      <title>Jees Hotel AI Chat Support</title>
       <!-- Google Fonts -->
       <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
       <style>
@@ -406,45 +405,42 @@ def chatbot_interface():
           --white: #ffffff;
         }
 
-        /* Reset body styling so it can blend with WordPress */
+        /* Make the page background transparent so the parent site shows behind it */
         body {
           margin: 0;
           padding: 0;
           font-family: 'Roboto', sans-serif;
-          background: transparent; /* Let WP or parent container show */
+          background: transparent;
         }
 
-        /* Container: 400×600, white background, box shadow */
+        /* Main chat container: 400×600, transparent background, box shadow */
         #chat-container {
           width: 400px;
           height: 600px;
           max-width: 100%;
-          background: var(--white);
+          background: transparent;  /* Let the page behind it show */
           border-radius: 10px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          margin: 0 auto; /* Center if not constrained by parent */
+          margin: 0 auto;
           animation: fadeIn 0.5s ease-in;
         }
-
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Removed #chat-header to have no title bar */
-
-        /* Chat messages area */
+        /* Messages area: transparent so we see the background behind it */
         #chat-box {
           flex: 1;
           padding: 20px;
           overflow-y: auto;
-          background: var(--light-color);
+          background: transparent;
         }
 
-        /* Input area styling */
+        /* The input area at the bottom: white for readability */
         #message-input {
           display: flex;
           padding: 15px;
@@ -478,7 +474,7 @@ def chatbot_interface():
           background: var(--primary-hover);
         }
 
-        /* Message bubbles styling */
+        /* Message bubble styling */
         .message {
           margin-bottom: 20px;
           display: flex;
@@ -486,7 +482,7 @@ def chatbot_interface():
         }
         @keyframes slideIn {
           from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
+          to   { opacity: 1; transform: translateX(0); }
         }
         .user-message {
           justify-content: flex-end;
@@ -516,13 +512,14 @@ def chatbot_interface():
     </head>
     <body>
       <div id="chat-container">
-        <!-- No header/title here -->
+        <!-- No header/title element here -->
         <div id="chat-box"></div>
         <div id="message-input">
           <input type="text" id="message" placeholder="Type your message..." onkeypress="checkEnter(event)">
           <button id="send-btn" onclick="sendMessage()">Send</button>
         </div>
       </div>
+
       <script>
         async function sendMessage() {
           const input = document.getElementById("message");
@@ -533,7 +530,7 @@ def chatbot_interface():
           // Append the user's message
           chatBox.innerHTML += `<div class="message user-message"><p>${message}</p></div>`;
           
-          // Send the message to the server
+          // Send the message to the Flask server
           const response = await fetch("/api", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -544,6 +541,7 @@ def chatbot_interface():
           // Append the bot's message
           chatBox.innerHTML += `<div class="message bot-message"><p>${data.response}</p></div>`;
           
+          // Clear input, scroll down
           input.value = "";
           chatBox.scrollTop = chatBox.scrollHeight;
         }
