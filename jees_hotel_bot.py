@@ -9,6 +9,7 @@ from reportlab.pdfgen import canvas
 import os
 from datetime import datetime
 import spacy.cli
+from rapidfuzz import process, fuzz
 
 app = Flask(__name__)
 
@@ -24,96 +25,9 @@ except OSError:
 GUPSHUP_API_KEY = "odv18op3iqkeo4r6a4ntr3z176bvc4y3"
 GUPSHUP_WHATSAPP_NUMBER = "+252634747907"
 
-# ====================
-# Enhanced Core System
-# ====================
-class ContextManager:
-    """Advanced context management with user profiling"""
-    def __init__(self):
-        self.contexts: Dict[str, Dict] = {}
-        self.user_profiles: Dict[str, Dict] = {}
-        self.rate_limits: Dict[str, datetime] = {}
-
-    def get_context(self, user_id: str) -> Dict:
-        return self.contexts.get(user_id, {})
-    
-    def update_context(self, user_id: str, updates: Dict):
-        self.contexts.setdefault(user_id, {}).update(updates)
-    
-    def clear_context(self, user_id: str):
-        self.contexts.pop(user_id, None)
-    
-    def get_user_profile(self, user_id: str) -> Dict:
-        return self.user_profiles.setdefault(user_id, {
-            'preferred_language': 'en',
-            'last_interaction': datetime.now(),
-            'conversation_history': [],
-            'preferred_room_type': None,
-            'booking_history': []
-        })
-    
-    def log_interaction(self, user_id: str, message: str, intent: str):
-        profile = self.get_user_profile(user_id)
-        profile['conversation_history'].append({
-            'timestamp': datetime.now(),
-            'message': message,
-            'intent': intent
-        })
-        profile['last_interaction'] = datetime.now()
-    
-    def check_rate_limit(self, user_id: str) -> bool:
-        last_req = self.rate_limits.get(user_id)
-        if last_req and (datetime.now() - last_req).seconds < 2:
-            return True
-        self.rate_limits[user_id] = datetime.now()
-        return False
-
-context_manager = ContextManager()
-
-# ======================
-# Enhanced NLP Utilities
-# ======================
-
-class NLPProcessor:
-    """Advanced NLP processing with entity recognition"""
-    def __init__(self):
-        self.synonyms = {
-            'book': ['reserve', 'schedule', 'arrange'],
-            'room': ['suite', 'accommodation', 'bedroom'],
-            'thanks': ['mahadsanid', 'shukran','thansk','waad mahadsantay','']
-        }
-    
-    def expand_synonyms(self, tokens: list) -> list:
-        expanded = []
-        for token in tokens:
-            expanded.extend(self.synonyms.get(token, [token]))
-        return list(set(expanded))
-    
-    def extract_entities(self, text: str) -> Dict:
-        doc = nlp(text.lower())
-        entities = {
-            'room_types': [],
-            'dates': [],
-            'numbers': []
-        }
-        
-        for ent in doc.ents:
-            if ent.label_ == 'DATE':
-                entities['dates'].append(ent.text)
-            elif ent.label_ == 'CARDINAL':
-                entities['numbers'].append(ent.text)
-        
-        room_types = [room["type"].lower() for room in HOTEL_INFO["rooms"]]
-        entities['room_types'] = [token.text for token in doc if token.text.lower() in room_types]
-        
-        return entities
-
-nlp_processor = NLPProcessor()
-
 # ======================
 # Enhanced Intent System
 # ======================
-
 class IntentHandler:
     """Priority-based intent matching with context awareness"""
     def __init__(self):
@@ -570,6 +484,169 @@ def chatbot_interface():
     </html>
     '''
 
+# ======================
+# Enhanced NLP Utilities
+# ======================
+class NLPProcessor:
+    """
+    Advanced NLP processing with entity recognition and canonical synonym expansion.
+    """
+    def __init__(self):
+        # This dictionary maps your *canonical* keyword to a list of 10 or more synonyms.
+        # For example, "book" covers synonyms like "reserve", "schedule", "arrange".
+        self.canonical_map = {
+            
+            "book": [
+                "book", 
+                "reserve", 
+                "schedule", 
+                "arrange", 
+                "prebook", 
+                "secure a reservation", 
+                "fix a booking", 
+                "organize a stay", 
+                "make a reservation", 
+                "plan my stay",
+                "i qabo qol",
+                "booking"
+            ],
+            "room": [
+                "room", 
+                "suite", 
+                "accommodation", 
+                "bedroom", 
+                "lodging",
+                "quarters",
+                "living space",
+                "chamber",
+                "hotel room",
+                "place to stay",
+                "deluxe",
+                "super deluxe",
+                "triple bed",
+                "double bed",
+                "vip"
+            ],
+            "thanks": [
+                "thanks",
+                "thank you",
+                "much obliged",
+                "cheers",
+                "i appreciate it",
+                "gracias",
+                "shukran",
+                "mahadsanid",
+                "waad mahadsantay",
+                "ad u mahadsantay",
+                "thankful"
+            ],
+            "greetings": [
+                "hello",
+                "hi",
+                "hey",
+                "good morning",
+                "good evening",
+                "good afternoon",
+                "good day",
+                "howdy",
+                "salaam",
+                "hiya",
+                "greetings",
+                "asc",
+                "asalm alaikum"
+            ],
+            "location": [
+                "location",
+                "where are you",
+                "address",
+                "directions",
+                "place",
+                "position",
+                "area",
+                "map location",
+                "wa xage meeshu",
+                "meshu xagay ku taal",
+            ]
+        }
+
+    def fuzzy_match_token(self, token: str, synonyms: list, threshold=80) -> bool:
+        """ Return True if the token closely matches any of the synonyms. """
+        best_match, score, index = process.extractOne(token, synonyms, scorer=fuzz.WRatio)
+        return score >= threshold
+
+    def expand_to_canonical_fuzzy(self, text: str) -> List[str]:
+        tokens = text.lower().split()
+        expanded_tokens = []
+
+        for token in tokens:
+            matched_canonical = None
+            for canonical, synonyms in self.canonical_map.items():
+                if self.fuzzy_match_token(token, synonyms):
+                    matched_canonical = canonical
+                    break
+            if matched_canonical:
+                expanded_tokens.append(matched_canonical)
+            else:
+                expanded_tokens.append(token)
+
+        return expanded_tokens
+
+    def expand_synonyms(self, text: str) -> List[str]:
+        """
+        Convert tokens in 'text' to their canonical form if they match
+        any known synonyms in self.canonical_map.
+        """
+        # Use spaCy to tokenize and normalize to lowercase
+        doc = nlp(text.lower())
+        expanded_tokens = []
+
+        for token in doc:
+            matched_canonical = None
+            # Check each canonical keyword and its synonyms
+            for canonical, synonyms in self.canonical_map.items():
+                if token.text in synonyms:
+                    matched_canonical = canonical
+                    break
+
+            # If we found a match, use the canonical form; otherwise keep the original token
+            if matched_canonical:
+                expanded_tokens.append(matched_canonical)
+            else:
+                expanded_tokens.append(token.text)
+
+        return expanded_tokens
+
+    def extract_entities(self, text: str) -> Dict:
+        """
+        Extract relevant entities (room types, dates, numbers) using spaCy.
+        """
+        doc = nlp(text.lower())
+        entities = {
+            'room_types': [],
+            'dates': [],
+            'numbers': []
+        }
+
+        # spaCy entity recognition for DATE and CARDINAL
+        for ent in doc.ents:
+            if ent.label_ == 'DATE':
+                entities['dates'].append(ent.text)
+            elif ent.label_ == 'CARDINAL':
+                entities['numbers'].append(ent.text)
+
+        # Check if user mentioned any known hotel room type by name
+        room_types = [room["type"].lower() for room in HOTEL_INFO["rooms"]]
+        entities['room_types'] = [
+            token.text for token in doc 
+            if token.text.lower() in room_types
+        ]
+
+        return entities
+
+# Instantiate your NLP processor
+nlp_processor = NLPProcessor()
+
+
 # --- Context Manager Update ---
 class ContextManager:
     def __init__(self):
@@ -628,49 +705,33 @@ def handle_language_selection(user_id: str, message: str) -> str:
         # If the selection is not recognized, prompt again.
         return RESPONSES['en']['language_prompt']
 
-# --- Main Response Generator ---
 def generate_response(user_id: str, message: str) -> str:
     profile = context_manager.get_user_profile(user_id)
-    
-    # Check if language selection is needed.
+
+    # Check if language selection is needed
     if profile.get('preferred_language') is None or profile.get('state') == 'awaiting_language':
         return handle_language_selection(user_id, message)
-    
+
     lang = profile.get('preferred_language', 'en')
-    msg_lower = message.lower()
     
-    # Handle greetings.
-    if any(greet in msg_lower for greet in ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]):
+    # STEP 1: Expand synonyms or use fuzzy expansion
+    # expanded_tokens = nlp_processor.expand_synonyms(message)
+    expanded_tokens = nlp_processor.expand_to_canonical_fuzzy(message)  # If you want fuzzy matching
+    token_set = set(expanded_tokens)  # Convert list to a set for easy membership checks
+
+    # STEP 2: Check for canonical tokens instead of raw substrings
+    if "greetings" in token_set:
         return random.choice(RESPONSES[lang]["greetings"])
-    
-    # Handle room booking inquiries.
-    if "book" in msg_lower or "reserve" in msg_lower or "room" in msg_lower:
-        return "You can book a room directly through our website: [Book Now](https://live.ipms247.com/booking/book-rooms-jeeshotel)"
-    
-    # Handle customer support inquiries.
-    if "support" in msg_lower or "help" in msg_lower or "contact" in msg_lower:
-        return f"For immediate assistance, you can contact our support team via WhatsApp: {HOTEL_INFO['whatsapp']}"
-    
-    # Handle hotel location inquiries.
-    if "where" in msg_lower or "location" in msg_lower or "address" in msg_lower:
+
+    if "book" in token_set or "room" in token_set:
+        return "You can book a room directly..."
+
+    if "location" in token_set:
         return f"Jees Hotel is located at {HOTEL_INFO['address']}."
-    
-    # Handle amenities inquiries.
-    if "amenities" in msg_lower or "facilities" in msg_lower or "services" in msg_lower:
-        amenities_list = "\n".join(HOTEL_INFO["amenities"])
-        return f"We offer the following amenities:\n{amenities_list}\n\nIs there anything specific you’d like to know more about?"
-    
-    # Handle check-in/check-out inquiries.
-    if "check-in" in msg_lower or "check-out" in msg_lower or "time" in msg_lower:
-        return f"Check-in time: {HOTEL_INFO['check_in']} | Check-out time: {HOTEL_INFO['check_out']}."
-    
-    # Handle hotel policy inquiries.
-    if "policy" in msg_lower or "rules" in msg_lower or "regulations" in msg_lower:
-        policies_list = "\n".join(HOTEL_INFO["policies"])
-        return f"Here are our hotel policies:\n{policies_list}\n\nLet us know if you need further clarification."
-    
-    # Default fallback.
-    return handle_fallback(lang) or "Sorry, I didn’t understand that. Could you please rephrase?"
+    # ...and so on...
+
+    # If no match, fallback
+    return handle_fallback(lang)
 
 #UPLOAD TO CLOUD
 def upload_to_cloud(file_path: str) -> str:
