@@ -2,9 +2,6 @@ import sys
 import os
 from flask import Flask, request, jsonify
 
-# Add the current directory to sys.path
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-
 # Now you can import files from the same directory or other directories
 from config import *
 from handlers import *
@@ -242,5 +239,5 @@ def chatbot_interface():
     </html>
     '''
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
