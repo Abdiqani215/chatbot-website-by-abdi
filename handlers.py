@@ -144,13 +144,13 @@ def handle_fallback(user_id: str, lang: str) -> str:
     context_manager.update_context(user_id, {"fallback_attempts": attempts})
     
     if attempts >= 3:
-        return RESPONSES[lang].get("live_transfer", "Connecting you to a live agent...").format(**HOTEL_INFO)
+        # Provide WhatsApp link after three attempts
+        return f"Connecting you to a live agent... You can also reach us directly on WhatsApp: [Click here to chat with us](https://wa.me/2526347470907)"
     elif attempts == 2:
         return RESPONSES[lang].get("escalated_fallback", "I'm having trouble understanding. Let me connect you to a live agent.").format(**HOTEL_INFO)
     else:
         fallback_options = RESPONSES[lang].get("fallback", ["I'm sorry, could you please rephrase?"])
         return random.choice(fallback_options).format(**HOTEL_INFO)
-
 
 def handle_help(message: str, user_id: str, lang: str) -> str:
     """
