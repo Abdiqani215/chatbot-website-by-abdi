@@ -1,6 +1,7 @@
 import sys
 import os
 from flask import Flask, request, jsonify
+
 # Now you can import files from the same directory or other directories
 from config import *
 from handlers import *
@@ -38,7 +39,22 @@ def api_handler():
         app.logger.error(f"API error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/chatbot', methods=['GET'])
+@app.route('/chatbot', methods=['POST'])
+def chatbot_webhook():
+    app.logger.info("Webhook received")  # Add log to check if request comes through
+    try:
+        data = request.get_json()  # Get data from Gupshup's webhook
+        app.logger.info(f"Data received: {data}")  # Log the incoming data
+        user_message = data['message']
+        user_id = data['user_id']
+        
+        response = generate_response(user_id, user_message)
+        
+        return jsonify({"response": response})
+    except Exception as e:
+        app.logger.error(f"Error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
 def chatbot_interface():
     """
     Chatbot Web Interface with:
@@ -238,5 +254,5 @@ def chatbot_interface():
     </html>
     '''
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
