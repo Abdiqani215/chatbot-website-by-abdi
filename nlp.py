@@ -26,36 +26,13 @@ class NLPProcessor:
         self.canonical_map = {
             
             "book": [
-                "book", 
-                "reserve", 
-                "schedule", 
-                "arrange", 
-                "prebook", 
-                "secure a reservation", 
-                "fix a booking", 
-                "organize a stay", 
-                "make a reservation", 
-                "plan my stay",
-                "i qabo qol",
-                "booking"
-            ],
-            "room": [
-                "room", 
-                "suite", 
-                "accommodation", 
-                "bedroom", 
-                "lodging",
-                "quarters",
-                "living space",
-                "chamber",
-                "hotel room",
-                "place to stay",
-                "deluxe",
-                "super deluxe",
-                "triple bed",
-                "double bed",
-                "vip"
-            ],
+    "book", "reserve", "schedule", "arrange", "prebook", "secure a reservation", "fix a booking", 
+    "organize a stay", "make a reservation", "plan my stay", "i qabo qol", "booking", "reserve a room"
+],
+"room": [
+    "room", "suite", "accommodation", "bedroom", "lodging", "quarters", "living space", "chamber", 
+    "hotel room", "place to stay", "deluxe", "super deluxe", "triple bed", "double bed", "vip"
+],
             "thanks": [
                 "thanks",
                 "thank you",
