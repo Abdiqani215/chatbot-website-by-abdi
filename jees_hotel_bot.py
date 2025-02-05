@@ -39,27 +39,7 @@ def api_handler():
         app.logger.error(f"API error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/chatbot', methods=['GET', 'POST'])
-def chatbot_webhook():
-    if request.method == 'POST':
-        try:
-            # Get data from Gupshup's webhook
-            data = request.get_json()  # Assuming Gupshup sends a JSON payload
-            user_message = data['message']  # Extract the message from the webhook data
-            user_id = data['user_id']  # Make sure you extract the user ID, if available
-            
-            # Generate a response using your bot's logic
-            response = generate_response(user_id, user_message)
-            
-            # Send back the response to Gupshup in the expected format
-            return jsonify({"response": response})
-
-        except Exception as e:
-            app.logger.error(f"Webhook error: {str(e)}")
-            return jsonify({"error": "Internal server error"}), 500
-    else:
-        # Handle GET request (optional, for testing or other purposes)
-        return "Chatbot is active. Ready to receive POST requests."
+@app.route('/chatbot', methods=['GET'])
 
 def chatbot_interface():
     """
