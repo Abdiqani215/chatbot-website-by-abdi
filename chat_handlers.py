@@ -46,23 +46,8 @@ def handle_language_selection(user_id: str, message: str) -> str:
 def generate_response(user_id: str, message: str) -> str:
     """
     Generate a context-aware response based on the user's input and profile.
-
-    The function first checks whether the user's language preference has been set.
-    If not, it delegates to the language selection handler. Once the language is determined,
-    the function employs NLP processing to transform the input message into a set of
-    canonical tokens. Depending on these tokens, it selects the most appropriate response:
-      - A greeting if the user’s message indicates salutations.
-      - Booking guidance if keywords such as "book" or "room" are detected.
-      - Location details if the message includes "location".
-    For any unrecognized input, a fallback response is generated.
-
-    Args:
-        user_id (str): Unique identifier for the user.
-        message (str): The user's input message.
-
-    Returns:
-        str: A contextually appropriate response.
     """
+
     profile = context_manager.get_user_profile(user_id)
     
     # Prompt for language selection if the user's preference is not set or they are in a pending state.
@@ -72,23 +57,31 @@ def generate_response(user_id: str, message: str) -> str:
     # Retrieve the user's preferred language; default to English if somehow unset.
     lang = profile.get('preferred_language', 'en')
 
-    # Use the NLP processor to convert the input message into a set of canonical tokens.
+    # Use NLP to process the input message.
     expanded_tokens = nlp_processor.expand_to_canonical_fuzzy(message)
     token_set = set(expanded_tokens)
 
-    # If the message contains a greeting, return a greeting response.
+    # Handle greetings
     if "greetings" in token_set:
         return random.choice(RESPONSES[lang]["greetings"])
 
-    # If the user's message suggests an inquiry about booking or room details,
-    # provide the appropriate booking information.
+    # Handle room bookings
     if "book" in token_set or "room" in token_set:
-        # Placeholder message: In production, replace with detailed booking instructions or redirect.
-        return "For room reservations, please visit our online booking portal available on our website."
+        return (
+            "For room reservations, please visit our online booking portal: "
+            "<a href='https://live.ipms247.com/booking/book-rooms-jeeshotel' "
+        )
 
-    # If the message includes an inquiry about location, provide the hotel address.
+    # Handle location inquiries
     if "location" in token_set:
         return f"Jees Hotel is located at {HOTEL_INFO['address']}."
 
-    # For any other inputs, use the fallback mechanism to generate an appropriate response.
+    # Handle live chat
+    if "live chat" in message.lower() or "support" in message.lower():
+        return (
+            "You can talk to a live agent now! "
+            "<a href='https://wa.me/2526347470907'>Click here to chat on WhatsApp</a>"
+        )
+
+    # For any other inputs, use the fallback mechanism.
     return handle_fallback(user_id, lang)
