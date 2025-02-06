@@ -18,7 +18,7 @@
 # External API Configuration
 # -----------------------------------------------------------------------------
 GUPSHUP_API_KEY = "sk_29765d09144b460f98cbe7761c5a4601"
-GUPSHUP_WHATSAPP_NUMBER = "+252634747907"
+GUPSHUP_WHATSAPP_NUMBER = "+252638533333"
 
 # -----------------------------------------------------------------------------
 # HOTEL GENERAL INFORMATION
