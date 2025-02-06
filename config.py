@@ -11,12 +11,6 @@
 #
 # Please ensure that any modifications to these settings are thoroughly tested
 # in a development environment prior to deployment.
-#
-# =============================================================================
-
-# -----------------------------------------------------------------------------
-# External API Configuration
-# ----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
 # HOTEL GENERAL INFORMATION
@@ -89,17 +83,19 @@ HOTEL_INFO = {
     # -------------------------------------------------------------------------
     "special_offers": [
         "Free airport transfer for ALL rooms.",
-        "20% discount on extended stays during off-peak seasons.",
-        "Complimentary breakfast for reservations made 30 days in advance."
+        "10% discount on extended stays during off-peak seasons.",
     ],
     # -------------------------------------------------------------------------
     # Hotel Policies and Guidelines
     # -------------------------------------------------------------------------
     "policies": [
-        "Pets are not allowed on the premises.",
-        "No smoking is permitted in any indoor areas.",
-        "Guests must adhere to the designated check-in/check-out times.",
-        "Any damage to hotel property will be charged to the guest."
+    "1. All our guests are requested to abide by the below prohibitions:",
+    "   a) Smoking, Khat, or any other substance abuse.",
+    "   b) Guns, swords, or any other type of weapon.",
+    "   c) Flammable material.",
+    "   d) Loud noises/music that will disturb other hotel residents.",
+    "2. Please check with reception before installing equipment or any other fixtures in your room or in other parts of the Hotel.",
+    "3. Lost & Found items will be kept for a period of 1 month from your check-out date, unless otherwise discussed and agreed with hotel management."
     ],
     # -------------------------------------------------------------------------
     # Additional Guest Services and Programs
@@ -139,8 +135,8 @@ HOTEL_INFO = {
     # Corporate and Business Inquiries Contact Information
     # -------------------------------------------------------------------------
     "corporate_contact": {
-        "phone": "+252 63 8533333 ext. 101",
-        "email": "corporate@jeeshotel.com"
+        "phone": "+252 63 8533333",
+        "email": "info@jeeshotel.com"
     }
 }
 
@@ -400,7 +396,7 @@ RESPONSES = {
         "wifi": "Haa, waxaan bixinaa internet xawaare sare leh (200 Mbps) oo bilaash ah.",
         "laundry": "Haa, waxaan bixinaa adeeg dhar dhaqis, balse qiimaha wuu kala duwan yahay iyadoo ku xiran dharka la dhaqayo.",
         "family": (
-            "Hotelkan waxaa loogu talagalay qoysaska, inkasta oo aanu bixin sariiro dheeraad ah. "
+            "Hotelka qoysaska way dagi karaan"
             "Waxaad ka heli kartaa qolalka qoyska ee website-ka iyadoo la isticmaalayo nidaamka saddexda sariirood."
         ),
         "gym": "Haa, jimicsiga waa furan yahay laga bilaabo 6AM ilaa 10PM.",
