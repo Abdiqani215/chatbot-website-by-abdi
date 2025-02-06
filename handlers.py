@@ -126,31 +126,37 @@ def handle_rooms(message: str, user_id: str, lang: str) -> str:
 
 def handle_fallback(user_id: str, lang: str) -> str:
     """
-    Provide an escalating fallback response with context tracking.
-    
-    This function updates the fallback attempt counter in the user's context and
-    returns an appropriate fallback response. If the user reaches a threshold, a more
-    direct message (or live transfer prompt) is returned.
-    
-    Args:
-        user_id (str): The unique identifier for the user.
-        lang (str): The user's preferred language code.
-    
-    Returns:
-        str: The fallback response message.
+    Improved fallback handling to reduce unnecessary live agent escalations.
     """
     user_context = context_manager.get_context(user_id)
     attempts = user_context.get("fallback_attempts", 0) + 1
     context_manager.update_context(user_id, {"fallback_attempts": attempts})
-    
+
+    if attempts == 1:
+        return (
+            "I'm sorry, I didn't understand that. Could you try rephrasing it?\n\n"
+            "Here are some topics I can help with:\n"
+            "1️⃣ Room bookings\n\n"
+            "2️⃣ Amenities details\n\n"
+            "3️⃣ Special offers\n\n"
+            "4️⃣ Hotel policies\n\n"
+            "Please type a number or ask another question."
+        )
+
+    if attempts == 2:
+        return (
+            "I’m still having trouble understanding. Try asking about room availability, hotel services, or special discounts.\n\n"
+            "Would you like to speak to a live agent instead?"
+        )
+
+    # Escalate only after 3 failed attempts
     if attempts >= 3:
-        # Provide WhatsApp link after three attempts
-        return f"Connecting you to a live agent... You can also reach us directly on WhatsApp: [Click here to chat with us](https://wa.me/2526347470907)"
-    elif attempts == 2:
-        return RESPONSES[lang].get("escalated_fallback", "I'm having trouble understanding. Let me connect you to a live agent.").format(**HOTEL_INFO)
-    else:
-        fallback_options = RESPONSES[lang].get("fallback", ["I'm sorry, could you please rephrase?"])
-        return random.choice(fallback_options).format(**HOTEL_INFO)
+        return (
+            "I'm having trouble understanding. Let me connect you to a live agent. "
+            "<a href='https://wa.me/2526347470907' target='_blank'>Click here to chat on WhatsApp</a>"
+        )
+
+    return random.choice(RESPONSES[lang]["fallback"])
 
 def handle_help(message: str, user_id: str, lang: str) -> str:
     """
