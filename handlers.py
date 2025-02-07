@@ -153,7 +153,7 @@ def handle_fallback(user_id: str, lang: str) -> str:
     if attempts >= 3:
         return (
             "I'm having trouble understanding. Let me connect you to a live agent. "
-            "<a href='https://wa.me/2526347470907' target='_blank'>Click here to chat on WhatsApp</a>"
+            "<a href='https://wa.me/252638533333' target='_blank'>Click here to chat on WhatsApp</a>"
         )
 
     return random.choice(RESPONSES[lang]["fallback"])
