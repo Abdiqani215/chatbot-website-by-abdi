@@ -12,28 +12,23 @@ from context import context_manager
 from nlp import nlp_processor
 from handlers import handle_fallback
 
-
 def handle_language_selection(user_id: str, message: str) -> str:
     """
-    Handles user messages and determines the response based on user state.
+    Determines the user's language and updates their profile.
     """
     profile = context_manager.get_user_profile(user_id)
-    
-    # Check if the user already has a language set
-    if 'preferred_language' not in profile:
-        return handle_language_selection(user_id, message)
-
-    language = profile['preferred_language']
     msg = message.strip().lower()
 
-    # Define possible interactions
-    if msg in ['room', 'room bookings', '1']:  # Adjust according to your expected inputs
-        profile.update({'state': 'booking'})
-        return RESPONSES[language]['booking_prompt']
+    if msg in ['en', 'english', '1']:
+        profile.update({'preferred_language': 'en', 'state': 'normal'})
+        return RESPONSES['en']['greetings'] + "\n" + RESPONSES['en']['menu']  # Immediately guide the user
 
-    elif profile.get('state') == 'booking':
-        # Handle booking process
-        return process_booking(user_id, message)  # Implement this function separately
+    elif msg in ['so', 'somali', 'soomaali', '2']:
+        profile.update({'preferred_language': 'so', 'state': 'normal'})
+        return RESPONSES['so']['greetings'] + "\n" + RESPONSES['so']['menu']
+
+    else:
+        return RESPONSES['en']['language_prompt']  # Keep prompting until the user selects a language
 
     return RESPONSES[language]['fallback']  # A generic fallback message
 def generate_response(user_id: str, message: str) -> str:
