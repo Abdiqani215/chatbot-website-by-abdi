@@ -1,1 +1,1 @@
-web: python jees_hotel_bot.py
+web: gunicorn app:app
