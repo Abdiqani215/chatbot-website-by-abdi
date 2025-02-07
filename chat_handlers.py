@@ -13,36 +13,29 @@ from nlp import nlp_processor
 from handlers import handle_fallback
 
 
-def handle_language_selection(user_id: str, message: str) -> str:
+def handle_user_message(user_id: str, message: str) -> str:
     """
-    Determine and set the user's language preference based on the provided input.
-
-    This function examines the user's message for recognized language identifiers.
-    If a valid language is detected (e.g., English or Somali), the user's profile is updated,
-    and a corresponding greeting is returned. Otherwise, the user is prompted to select
-    a language.
-
-    Args:
-        user_id (str): Unique identifier for the user.
-        message (str): The raw input message from the user.
-
-    Returns:
-        str: A greeting in the selected language or a prompt for language selection.
+    Handles user messages and determines the response based on user state.
     """
     profile = context_manager.get_user_profile(user_id)
+    
+    # Check if the user already has a language set
+    if 'preferred_language' not in profile:
+        return handle_language_selection(user_id, message)
+
+    language = profile['preferred_language']
     msg = message.strip().lower()
 
-    if msg in ['en', 'english', '1']:
-        profile.update({'preferred_language': 'en', 'state': 'normal'})
-        return random.choice(RESPONSES['en']['greetings'])
-    elif msg in ['so', 'somali', 'soomaali', '2']:
-        profile.update({'preferred_language': 'so', 'state': 'normal'})
-        return random.choice(RESPONSES['so']['greetings'])
-    else:
-        # If the language cannot be determined, prompt the user with the default language selection message.
-        return RESPONSES['en']['language_prompt']
+    # Define possible interactions
+    if msg in ['room', 'room bookings', '1']:  # Adjust according to your expected inputs
+        profile.update({'state': 'booking'})
+        return RESPONSES[language]['booking_prompt']
 
+    elif profile.get('state') == 'booking':
+        # Handle booking process
+        return process_booking(user_id, message)  # Implement this function separately
 
+    return RESPONSES[language]['fallback']  # A generic fallback message
 def generate_response(user_id: str, message: str) -> str:
     """
     Generate a context-aware response based on the user's input and profile.
