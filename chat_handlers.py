@@ -60,7 +60,6 @@ def generate_response(user_id: str, message: str) -> str:
     # Use NLP to process the input message.
     expanded_tokens = nlp_processor.expand_to_canonical_fuzzy(message)
     token_set = set(expanded_tokens)
-
     # Handle greetings
     if "greetings" in token_set:
         return random.choice(RESPONSES[lang]["greetings"])
