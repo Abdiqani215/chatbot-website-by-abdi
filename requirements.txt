@@ -39,3 +39,4 @@ wasabi==1.1.3
 srsly==2.5.1
 catalogue==2.0.10
 weasel==0.3.4
+gunicorn
