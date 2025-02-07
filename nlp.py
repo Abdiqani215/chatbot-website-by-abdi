@@ -21,59 +21,62 @@ class NLPProcessor:
     Advanced NLP processing with entity recognition and canonical synonym expansion.
     """
     def __init__(self):
-        # This dictionary maps your *canonical* keyword to a list of 10 or more synonyms.
-        # For example, "book" covers synonyms like "reserve", "schedule", "arrange".
-        self.canonical_map = {
-            
-            "book": [
-    "book", "reserve", "schedule", "arrange", "prebook", "secure a reservation", "fix a booking", 
-    "organize a stay", "make a reservation", "plan my stay", "i qabo qol", "booking", "reserve a room"
-],
-"room": [
-    "room", "suite", "accommodation", "bedroom", "lodging", "quarters", "living space", "chamber", 
-    "hotel room", "place to stay", "deluxe", "super deluxe", "triple bed", "double bed", "vip"
-],
-            "thanks": [
-                "thanks",
-                "thank you",
-                "much obliged",
-                "cheers",
-                "i appreciate it",
-                "gracias",
-                "shukran",
-                "mahadsanid",
-                "waad mahadsantay",
-                "ad u mahadsantay",
-                "thankful"
-            ],
-            "greetings": [
-                "hello",
-                "hi",
-                "hey",
-                "good morning",
-                "good evening",
-                "good afternoon",
-                "good day",
-                "howdy",
-                "salaam",
-                "hiya",
-                "greetings",
-                "asc",
-                "asalm alaikum"
-            ],
-            "location": [
-                "location",
-                "where are you",
-                "address",
-                "directions",
-                "place",
-                "position",
-                "area",
-                "map location",
-                "wa xage meeshu",
-                "meshu xagay ku taal",
-            ]
-        }
+    # This dictionary maps your *canonical* keyword to a list of 10 or more synonyms.
+    # For example, "book" covers synonyms like "reserve", "schedule", "arrange".
+         self.canonical_map = {
+        "special_offer": [
+            "special offer", "offer", "discount", "deal", "promo", "promotion", "special discount",
+            "flash sale", "early bird discount", "room discount", "hotel deal"
+        ],
+        "amenities": [
+            "amenities", "services", "facilities", "features", "what does the hotel have",
+            "what services do you offer", "hotel features"
+        ],
+        "booking": [
+            "book", "reserve", "schedule", "arrange", "prebook", "secure a reservation", "fix a booking",
+            "organize a stay", "make a reservation", "plan my stay", "booking", "reserve a room"
+        ],
+        "thanks": [
+            "thanks",
+            "thank you",
+            "much obliged",
+            "cheers",
+            "i appreciate it",
+            "gracias",
+            "shukran",
+            "mahadsanid",
+            "waad mahadsantay",
+            "ad u mahadsantay",
+            "thankful"
+        ],
+        "greetings": [
+            "hello",
+            "hi",
+            "hey",
+            "good morning",
+            "good evening",
+            "good afternoon",
+            "good day",
+            "howdy",
+            "salaam",
+            "hiya",
+            "greetings",
+            "asc",
+            "asalm alaikum"
+        ],
+        "location": [
+            "location",
+            "where are you",
+            "address",
+            "directions",
+            "place",
+            "position",
+            "area",
+            "map location",
+            "wa xage meeshu",
+            "meshu xagay ku taal"
+        ]
+    }
 
     def fuzzy_match_token(self, token: str, synonyms: list, threshold=80) -> bool:
         """ Return True if the token closely matches any of the synonyms. """
