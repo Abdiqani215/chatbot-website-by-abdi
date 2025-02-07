@@ -1,7 +1,7 @@
 # Ensures build tools are up to date
 setuptools>=68.0.0
 wheel
-python-3.11.9
+
 
 # Web server dependencies
 waitress==2.1.2
