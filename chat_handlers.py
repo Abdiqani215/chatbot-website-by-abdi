@@ -1,5 +1,4 @@
-"""
-chat_handlers.py
+"""chat_handlers.py
 
 This module handles language selection and response generation for the Jees Hotel chatbot.
 It leverages the global context manager, advanced NLP processing, and predefined response
@@ -12,25 +11,36 @@ from context import context_manager
 from nlp import nlp_processor
 from handlers import handle_fallback
 
+
 def handle_language_selection(user_id: str, message: str) -> str:
     """
-    Determines the user's language and updates their profile.
+    Determine and set the user's language preference based on the provided input.
+
+    This function examines the user's message for recognized language identifiers.
+    If a valid language is detected (e.g., English or Somali), the user's profile is updated,
+    and a corresponding greeting is returned. Otherwise, the user is prompted to select
+    a language.
+
+    Args:
+        user_id (str): Unique identifier for the user.
+        message (str): The raw input message from the user.
+
+    Returns:
+        str: A greeting in the selected language or a prompt for language selection.
     """
     profile = context_manager.get_user_profile(user_id)
     msg = message.strip().lower()
 
     if msg in ['en', 'english', '1']:
         profile.update({'preferred_language': 'en', 'state': 'normal'})
-        return RESPONSES['en']['greetings'] + "\n" + RESPONSES['en']['menu']  # Immediately guide the user
-
+        return random.choice(RESPONSES['en']['greetings'])
     elif msg in ['so', 'somali', 'soomaali', '2']:
         profile.update({'preferred_language': 'so', 'state': 'normal'})
-        return RESPONSES['so']['greetings'] + "\n" + RESPONSES['so']['menu']
-
+        return random.choice(RESPONSES['so']['greetings'])
     else:
-        return RESPONSES['en']['language_prompt']  # Keep prompting until the user selects a language
+        # If the language cannot be determined, prompt the user with the default language selection message.
+        return RESPONSES['en']['language_prompt']
 
-    return RESPONSES[language]['fallback']  # A generic fallback message
 def generate_response(user_id: str, message: str) -> str:
     """
     Generate a context-aware response based on the user's input and profile.
