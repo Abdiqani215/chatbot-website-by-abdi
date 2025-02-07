@@ -13,7 +13,7 @@ from nlp import nlp_processor
 from handlers import handle_fallback
 
 
-def handle_user_message(user_id: str, message: str) -> str:
+def handle_language_selection(user_id: str, message: str) -> str:
     """
     Handles user messages and determines the response based on user state.
     """
