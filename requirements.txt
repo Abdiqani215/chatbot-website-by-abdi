@@ -35,7 +35,6 @@ preshed==3.0.6
 spacy==3.5.0
 murmurhash==1.0.12
 cymem==2.0.11
-preshed==3.0.2
 thinc==8.2.5
 wasabi==1.1.3
 srsly==2.5.1
