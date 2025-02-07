@@ -1,11 +1,11 @@
 import sys
 import os
 from flask import Flask, request, jsonify
-#from flask_cors import CORS  # Removed as requested
 from waitress import serve
-#from jees_hotel_bot import app  # Removed duplicate app creation
+from markupsafe import Markup
+from setuptools._distutils import msvccompiler
 
-# Now you can import files from the same directory or other directories
+#import files from the same directory or other directories
 from config import *
 from handlers import *
 from context import context_manager
@@ -15,7 +15,6 @@ from chat_handlers import generate_response, handle_language_selection
 from nlp import nlp_processor  # import the global NLPProcessor instance
 
 app = Flask(__name__)
-# CORS(app)  # Removed as requested
 
 @app.route('/')
 def home():
@@ -87,19 +86,12 @@ def chatbot_webhook():
               --dark-color: #343a40;
               --white: #ffffff;
             }
-            /* Keep the page background transparent */
             body {
               margin: 0;
               padding: 0;
               font-family: 'Roboto', sans-serif;
               background: transparent;
             }
-            /*
-             Chat container with semi-transparent background:
-             - Fixed dimensions: 400×600
-             - Background: 50% white transparency
-             - Subtle box-shadow for a border effect
-            */
             #chat-container {
               width: 400px;
               height: 600px;
@@ -117,14 +109,12 @@ def chatbot_webhook():
               from { opacity: 0; transform: translateY(20px); }
               to   { opacity: 1; transform: translateY(0); }
             }
-            /* Chat box area */
             #chat-box {
               flex: 1;
               padding: 20px;
               overflow-y: auto;
               background: transparent;
             }
-            /* Message input area */
             #message-input {
               display: flex;
               padding: 15px;
@@ -158,9 +148,6 @@ def chatbot_webhook():
             #send-btn:hover {
               background: var(--primary-hover);
             }
-            /*
-             Message bubbles styling
-            */
             .message {
               margin-bottom: 20px;
               display: flex;
@@ -182,6 +169,7 @@ def chatbot_webhook():
               border-radius: 20px;
               font-size: 15px;
               margin: 0;
+              word-wrap: break-word;
             }
             .user-message p {
               background: var(--primary-color);
@@ -193,6 +181,14 @@ def chatbot_webhook():
               color: var(--dark-color);
               border-bottom-left-radius: 0;
               border: 1px solid #ced4da;
+            }
+            .bot-message a {
+              color: var(--primary-color);
+              text-decoration: none;
+              font-weight: bold;
+            }
+            .bot-message a:hover {
+              text-decoration: underline;
             }
           </style>
         </head>
@@ -210,23 +206,31 @@ def chatbot_webhook():
               const input = document.getElementById("message");
               const message = input.value.trim();
               if (!message) return;
-              
+
               const chatBox = document.getElementById("chat-box");
-              // Append the user's message
+
+              // Append user's message
               chatBox.innerHTML += `<div class="message user-message"><p>${message}</p></div>`;
-              
+
               // Send the message to the Flask server
               const response = await fetch("/api", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "chat", message: message })
               });
-              
+
               const data = await response.json();
-              // Append the bot's message
-              chatBox.innerHTML += `<div class="message bot-message"><p>${data.response}</p></div>`;
               
-              // Clear the input and scroll to the bottom
+              // Convert plain URLs to clickable links in bot messages
+              const botMessage = data.response.replace(
+                /(https?:\/\/[^\s]+)/g,
+                '<a href="$1" target="_blank">$1</a>'
+              );
+
+              // Append bot's response
+              chatBox.innerHTML += `<div class="message bot-message"><p>${botMessage}</p></div>`;
+
+              // Clear input and scroll to bottom
               input.value = "";
               chatBox.scrollTop = chatBox.scrollHeight;
             }
